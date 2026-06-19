@@ -1395,8 +1395,8 @@ function ProfileView({
           <FormSection title="Prediction-CdA">
             <div className="calculated-row">
               <p className="calculated-note">
-                Groesse und Gewicht werden nur in der Prediction für die optionale CdA-Skalierung genutzt. Ohne diese Skalierung hängt die
-                Aerodynamik nicht von deiner Körpergröße ab; Größe ändert dann keinen CdA-Wert. Gewicht wirkt weiterhin über Masse,
+                Groesse und Gewicht könnne auch zur CdA-Skalierung genutzt werden. Für große und kleiner Personen wichig.
+                Ohne diese Skalierung hängt die Aerodynamik nicht von deiner Körpergröße ab; Gewicht wirkt weiterhin über Masse,
                 Rollwiderstand und Steigungen. Der Formelwert ist ein Vorschlag; du kannst den Prozentwert manuell korrigieren.
               </p>
               <div className="calculated-note cda-scale-note">
