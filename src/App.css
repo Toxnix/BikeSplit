@@ -1304,28 +1304,6 @@ tbody tr:hover {
   gap: 14px;
 }
 
-.analysis-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.analysis-tabs button {
-  min-height: 36px;
-  border: 1px solid #e1e5e8;
-  border-radius: 4px 4px 0 0;
-  padding: 0 10px;
-  color: #263547;
-  background: #fff;
-  font-size: 0.86rem;
-}
-
-.analysis-tabs button.active {
-  color: #061832;
-  border-bottom-color: #fff;
-  font-weight: 800;
-}
-
 .bbs-analysis-panel {
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -1820,7 +1798,6 @@ body {
 .choice-group button,
 .cda-table,
 .cda-row input,
-.analysis-tabs button,
 .bbs-analysis-panel,
 .race-accordion,
 .empty-route-panel,
@@ -1878,12 +1855,6 @@ body {
   color: var(--text);
   border-color: var(--line);
   background: #1d272b;
-}
-
-.analysis-tabs button.active {
-  color: var(--text);
-  border-bottom-color: var(--surface);
-  background: var(--surface);
 }
 
 .rail-menu button {

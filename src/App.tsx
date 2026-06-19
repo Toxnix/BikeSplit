@@ -119,7 +119,6 @@ interface AthleteProfile {
 }
 
 interface BikeSetupProfile {
-  bikeName: string;
   bikeType: string;
   components: string;
   frontWheelType: string;
@@ -150,7 +149,6 @@ interface RacePlan {
   id: string;
   name: string;
   courseName: string;
-  bikeName: string;
   createdAt: string;
   mode: SimulationMode;
   distanceM: number;
@@ -217,7 +215,6 @@ const defaultAthleteProfile: AthleteProfile = {
 };
 
 const defaultBikeSetupProfile: BikeSetupProfile = {
-  bikeName: "Fuji",
   bikeType: "Tri/TT (entry level)",
   components: "Mid Range",
   frontWheelType: "Medium Depth (60s)",
@@ -344,7 +341,6 @@ const labelHelp: Record<string, string> = {
   FTP: "Functional Threshold Power. Wird fuer Intensitaeten, Prozent-FTP und die Bewertung der geplanten Leistung verwendet.",
   Rad: "Radgewicht ohne Fahrer. Es wirkt vor allem an Steigungen und beim Beschleunigen nach langsamen Kurven.",
   "Radgewicht": "Gewicht des kompletten Rads inklusive typischer Anbauteile. Geht in die Systemmasse ein.",
-  "Radname": "Lokaler Name fuer dieses Radprofil. Der Name dient nur zur Wiedererkennung in gespeicherten Race Plaenen.",
   "Radtyp": "Grundtyp des Rads. Das lokale BBS-nahe Modell nutzt ihn als Basis fuer Rollwiderstand und aerodynamische Schaetzung.",
   Komponenten: "Qualitaetsstufe der Komponenten. Sie beeinflusst vor allem mechanische Verluste und einen kleinen Aerodynamikanteil.",
   "Vorderrad-Typ": "Felgenform vorne. Das Vorderrad beeinflusst die CdA je nach Windwinkel deutlich staerker als viele andere Radteile.",
@@ -574,7 +570,6 @@ export default function App() {
       result: simulationRun.result,
       profile: simulationRun.profile,
       baseProfile: simulationRun.baseProfile,
-      bikeSetup: simulationRun.bikeSetup,
       weather: simulationRun.weather,
       mode: simulationRun.mode,
       riderCdaScale: simulationRun.riderCdaScale
@@ -1832,8 +1827,7 @@ function BikeProfileView({
 
         <section className="profile-form-surface bike-form">
           <FormSection title="Raddaten">
-            <div className="bike-grid four">
-              <TextField label="Radname" value={bikeSetup.bikeName} onChange={(value) => setBikeSetupField(setBikeSetup, "bikeName", value)} />
+            <div className="bike-grid three">
               <SelectField label="Radtyp" value={bikeSetup.bikeType} options={bikeTypeOptions} onChange={(value) => updateBikeSetup("bikeType", value)} />
               <NumberField label="Radgewicht" value={profile.bikeWeightKg} unit="kg" min={5} max={18} step={0.1} onChange={(value) => setProfileField(setProfile, "bikeWeightKg", value)} />
               <SelectField label="Komponenten" value={bikeSetup.components} options={componentOptions} onChange={(value) => updateBikeSetup("components", value)} />
@@ -2040,12 +2034,6 @@ function RaceDetailsView({
         </div>
 
         <section className="race-analysis-surface">
-          <div className="analysis-tabs">
-            {["Power-Plan", "Zeit-Analyse", "Wetter", "Zonen", "Yaw-Winkel", "Steigungen", "Peak Power", "Untergrund", "Notizen"].map((tab, index) => (
-              <button className={index === 0 ? "active" : ""} type="button" key={tab}>{tab}</button>
-            ))}
-          </div>
-
           <section className="bbs-analysis-panel">
             <div className="analysis-toggle">
               <button className={chartAxis === "distance" ? "active" : ""} type="button" onClick={() => setChartAxis("distance")}>Strecke</button>
@@ -2071,7 +2059,6 @@ function RaceDetailsView({
               <Stat label="Ø Leistung" value={formatWatts(racePlan.solvedPowerW ?? racePlan.averagePowerW)} />
               <Stat label="Normalized Power" value={formatWatts(getRacePlanNormalizedPower(racePlan))} />
               <Stat label="CdA-Skalierung" value={`${(racePlan.cdaScale * 100).toFixed(1)}%`} />
-              <Stat label="Rad" value={racePlan.bikeName} />
             </div>
           </details>
 
@@ -2911,7 +2898,6 @@ function createRacePlanSnapshot({
   result,
   profile,
   baseProfile,
-  bikeSetup,
   weather,
   mode,
   riderCdaScale
@@ -2920,7 +2906,6 @@ function createRacePlanSnapshot({
   result: SimulationResult;
   profile: RiderBikeProfile;
   baseProfile: RiderBikeProfile;
-  bikeSetup: BikeSetupProfile;
   weather: WeatherProfile;
   mode: SimulationMode;
   riderCdaScale: number;
@@ -2930,7 +2915,6 @@ function createRacePlanSnapshot({
     id: `race-${Date.now()}`,
     name: `${route.name} ${new Date(createdAt).toLocaleDateString("de-DE")}`,
     courseName: route.name,
-    bikeName: bikeSetup.bikeName || "Bike",
     createdAt,
     mode,
     distanceM: route.totalDistanceM,
