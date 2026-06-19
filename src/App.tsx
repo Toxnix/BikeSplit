@@ -102,6 +102,7 @@ type ActiveView = "simulator" | "profile" | "bike" | "courses" | "racePlans" | "
 type ChartAxis = "distance" | "time";
 type DragMethod = "basic";
 type PacingRiskLevel = "reserve" | "safe" | "good" | "strong" | "runWalk" | "blown";
+type ComputeMode = "idle" | "server" | "browser";
 
 interface AthleteProfile {
   heightCm: number;
@@ -414,14 +415,18 @@ export default function App() {
   const [weather, setWeather] = useStoredState<WeatherProfile>("aerosplit.weather", defaultWeather);
   const [mode, setMode] = useStoredState<SimulationMode>("aerosplit.mode", "power");
   const [activeView, setActiveView] = useStoredState<ActiveView>("aerosplit.activeView", "simulator");
-  const currentView: ActiveView =
-    activeView === "profile" || activeView === "bike" || activeView === "courses" || activeView === "racePlans" || activeView === "raceDetails"
+  const dashboardUnlocked = racePlans.length > 0;
+  const requestedView: ActiveView =
+    activeView === "profile" || activeView === "bike" || activeView === "courses" || activeView === "racePlans" || activeView === "raceDetails" || activeView === "simulator"
       ? activeView
-      : "simulator";
+      : "profile";
+  const currentView: ActiveView =
+    requestedView === "simulator" && !dashboardUnlocked ? "profile" : requestedView;
   const [goalHours, setGoalHours] = useStoredState<number>("aerosplit.goalHours", 5);
   const [goalMinutes, setGoalMinutes] = useStoredState<number>("aerosplit.goalMinutes", 5);
   const [importError, setImportError] = useState("");
   const [simulationRun, setSimulationRun] = useState<SimulationRun | null>(null);
+  const [computeMode, setComputeMode] = useState<ComputeMode>("idle");
 
   const goalTimeSec = goalHours * 3600 + goalMinutes * 60;
   const suggestedRiderCdaScale = useMemo(
@@ -504,12 +509,20 @@ export default function App() {
     bikeSetup.dragMethod
   ]);
 
-  const runSimulation = () => {
+  const runSimulation = async () => {
     if (!route) {
       return;
     }
 
-    const nextResult = simulateCourse(route.segments, predictionProfile, weather, mode, goalTimeSec);
+    const nextResult = await runSimulationOnServer(route.segments, predictionProfile, weather, mode, goalTimeSec)
+      .then((serverResult) => {
+        setComputeMode("server");
+        return serverResult;
+      })
+      .catch(() => {
+        setComputeMode("browser");
+        return simulateCourse(route.segments, predictionProfile, weather, mode, goalTimeSec);
+      });
     setSimulationRun({
       route,
       result: nextResult,
@@ -592,7 +605,7 @@ export default function App() {
     setRoute(prepareRoute(course.name, course.points, 50, 9));
     setSimulationRun(null);
     setImportError("");
-    setActiveView("simulator");
+    setActiveView("courses");
   };
 
   const deleteSavedCourse = (id: string) => {
@@ -612,10 +625,6 @@ export default function App() {
           </div>
         </div>
         <nav className="top-nav" aria-label="Hauptbereiche">
-          <button className={currentView === "simulator" ? "active" : ""} type="button" onClick={() => setActiveView("simulator")}>
-            <Gauge size={17} />
-            Dashboard
-          </button>
           <button className={currentView === "profile" ? "active" : ""} type="button" onClick={() => setActiveView("profile")}>
             <User size={17} />
             Profil
@@ -626,12 +635,18 @@ export default function App() {
           </button>
           <button className={currentView === "courses" ? "active" : ""} type="button" onClick={() => setActiveView("courses")}>
             <Map size={17} />
-            Kurse
+            Strecken
           </button>
           <button className={currentView === "racePlans" || currentView === "raceDetails" ? "active" : ""} type="button" onClick={() => setActiveView("racePlans")}>
             <Target size={17} />
             Race-Pläne
           </button>
+          {dashboardUnlocked && (
+            <button className={currentView === "simulator" ? "active" : ""} type="button" onClick={() => setActiveView("simulator")}>
+              <Gauge size={17} />
+              Dashboard
+            </button>
+          )}
         </nav>
         <div className="top-actions">
           <button className="button secondary" type="button" onClick={() => fileInputRef.current?.click()}>
@@ -641,6 +656,18 @@ export default function App() {
           <input ref={fileInputRef} className="visually-hidden" type="file" accept=".gpx,application/gpx+xml" onChange={handleFile} />
         </div>
       </header>
+
+      {currentView !== "simulator" && (
+        <SetupFlow
+          activeView={currentView}
+          routeReady={Boolean(route || savedCourses.length)}
+          racePlanReady={dashboardUnlocked}
+          dashboardUnlocked={dashboardUnlocked}
+          setActiveView={setActiveView}
+        />
+      )}
+
+      <ModelInfoPanel computeMode={computeMode} />
 
       {currentView === "profile" ? (
         <ProfileView
@@ -678,10 +705,13 @@ export default function App() {
         <CoursesView
           savedCourses={savedCourses}
           currentRoute={route}
+          result={result}
+          hasPendingSimulation={hasPendingSimulation}
           onSaveCurrent={saveCurrentCourse}
           onOpenCourse={openSavedCourse}
           onDeleteCourse={deleteSavedCourse}
           onImportGpx={() => fileInputRef.current?.click()}
+          onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
         />
@@ -708,7 +738,7 @@ export default function App() {
       ) : (
         <main className="workspace">
           <aside className="control-column">
-            <Panel icon={<Map size={18} />} title="Kurs">
+            <Panel icon={<Map size={18} />} title="Strecke">
               <CourseEvaluation
                 route={route}
                 result={result}
@@ -721,7 +751,7 @@ export default function App() {
                   <RouteMap route={route} compact />
                   <button className="button secondary full-button" type="button" onClick={saveCurrentCourse}>
                     <Save size={17} />
-                    Kurs speichern
+                    Strecke speichern
                   </button>
                 </>
               )}
@@ -912,7 +942,7 @@ export default function App() {
             ) : route ? (
               <section className="empty-route-panel">
                 <Play size={34} />
-                <h2>Kurs geladen</h2>
+                <h2>Strecke geladen</h2>
                 <p>Die GPX ist bereit. Die Prediction wird erst gerechnet, wenn du den Button drückst.</p>
                 <button className="button secondary" type="button" onClick={runSimulation}>
                   <Play size={17} />
@@ -922,8 +952,8 @@ export default function App() {
             ) : (
               <section className="empty-route-panel">
                 <Map size={34} />
-                <h2>Kein Kurs geladen</h2>
-                <p>Lade eine GPX-Datei, dann werden Kursprofil, Segmente, Bike Split und Szenarien mit den aktuellen Profilwerten berechnet.</p>
+                <h2>Keine Strecke geladen</h2>
+                <p>Lade eine GPX-Datei, dann werden Streckenprofil, Segmente, Radzeit und Szenarien mit den aktuellen Profilwerten berechnet.</p>
                 <button className="button secondary" type="button" onClick={() => fileInputRef.current?.click()}>
                   <Upload size={17} />
                   GPX laden
@@ -934,6 +964,150 @@ export default function App() {
         </main>
       )}
     </div>
+  );
+}
+
+async function runSimulationOnServer(
+  segments: PreparedRoute["segments"],
+  profile: RiderBikeProfile,
+  weather: WeatherProfile,
+  mode: SimulationMode,
+  goalTimeSec: number
+): Promise<SimulationResult> {
+  const response = await fetch("/api/simulate", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      segments,
+      profile,
+      weather,
+      mode,
+      goalTimeSec
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Serverberechnung fehlgeschlagen: ${response.status}`);
+  }
+
+  return (await response.json()) as SimulationResult;
+}
+
+function SetupFlow({
+  activeView,
+  routeReady,
+  racePlanReady,
+  dashboardUnlocked,
+  setActiveView
+}: {
+  activeView: ActiveView;
+  routeReady: boolean;
+  racePlanReady: boolean;
+  dashboardUnlocked: boolean;
+  setActiveView: Dispatch<SetStateAction<ActiveView>>;
+}) {
+  const steps = [
+    { label: "Profil", view: "profile" as ActiveView, ready: true, icon: <User size={15} /> },
+    { label: "Räder", view: "bike" as ActiveView, ready: true, icon: <Bike size={15} /> },
+    { label: "Strecken", view: "courses" as ActiveView, ready: routeReady, icon: <Map size={15} /> },
+    { label: "Race-Pläne", view: "racePlans" as ActiveView, ready: racePlanReady, icon: <Target size={15} /> }
+  ];
+  const normalizedActiveView = activeView === "raceDetails" ? "racePlans" : activeView;
+
+  return (
+    <nav className="setup-flow" aria-label="Setup-Ablauf">
+      <div className="setup-flow-inner">
+        {steps.map((step, index) => (
+          <button
+            key={step.view}
+            className={`${normalizedActiveView === step.view ? "active" : ""} ${step.ready ? "ready" : ""}`}
+            type="button"
+            onClick={() => setActiveView(step.view)}
+          >
+            <span className="setup-step-index">{index + 1}</span>
+            {step.icon}
+            <span>{step.label}</span>
+          </button>
+        ))}
+        {dashboardUnlocked ? (
+          <button
+            className={activeView === "simulator" ? "active ready" : "ready"}
+            type="button"
+            onClick={() => setActiveView("simulator")}
+          >
+            <span className="setup-step-index">5</span>
+            <LayoutDashboard size={15} />
+            <span>Dashboard</span>
+          </button>
+        ) : (
+          <div className="setup-flow-locked">
+            <span className="setup-step-index">5</span>
+            <LayoutDashboard size={15} />
+            <span>Dashboard nach gespeichertem Race-Plan</span>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+function ModelInfoPanel({ computeMode }: { computeMode: ComputeMode }) {
+  const computeLabel =
+    computeMode === "server"
+      ? "Letzte Berechnung: serverseitig über Cloudflare Pages Function."
+      : computeMode === "browser"
+        ? "Letzte Berechnung: lokaler Browser-Fallback, weil die Server-API in dieser Umgebung nicht erreichbar war."
+        : "Noch keine Berechnung in dieser Sitzung.";
+
+  return (
+    <details className="model-info-panel">
+      <summary>Speicherung, Berechnung & physikalisches Modell</summary>
+      <div className="model-info-grid">
+        <section>
+          <h3>Lokale Speicherung</h3>
+          <p>
+            Profil, Radsetup, geladene Strecken und gespeicherte Race-Pläne werden im LocalStorage dieses Browsers gespeichert.
+            Es gibt kein Benutzerkonto und keine zentrale Datenbank für diese Daten.
+          </p>
+        </section>
+        <section>
+          <h3>Berechnung</h3>
+          <p>
+            Online wird die Prediction per <code>/api/simulate</code> serverseitig auf Cloudflare Pages Functions berechnet.
+            In der lokalen Entwicklungsansicht nutzt die App denselben Solver im Browser als Fallback.
+          </p>
+          <p className="compute-status">{computeLabel}</p>
+        </section>
+        <section>
+          <h3>Physikalisches Modell</h3>
+          <p>
+            Pro Streckensegment wird eine Leistungsbilanz gelöst: aerodynamischer Widerstand, Rollwiderstand, Steigung/Schwerkraft,
+            Windkomponente, Luftdichte und Antriebsverlust bestimmen die Geschwindigkeit. Die Luftdichte kommt aus Temperatur,
+            Luftdruck und Feuchte.
+          </p>
+          <p>
+            CdA wird nach effektivem Yaw-Winkel aus den Race- und Climb-Yaw-Tabellen interpoliert. Bei langsamen steilen Abschnitten
+            nutzt das Modell die Climb-CdA. Im Terrain-Modus werden Leistungsspitzen an Anstiegen und nach Kurven innerhalb der
+            eingestellten Grenzen verteilt; Normalized Power wird aus geglätteten 30-Sekunden-Leistungswerten berechnet.
+          </p>
+        </section>
+        <section>
+          <h3>CdA-Skalierung für Fahrergröße</h3>
+          <p>
+            Das Setup-Modell liefert eine Basis-CdA für Rad, Position und Referenzfahrer. Ohne aktivierte Skalierung ist die Aerodynamik
+            unabhängig von der Körpergröße: ein 1,65-m- und ein 1,95-m-Fahrer hätten bei gleichem Setup denselben CdA.
+          </p>
+          <p>
+            Mit Skalierung bleibt der Equipment-Anteil konstant und nur der fahrerabhängige Anteil wird angepasst:
+            <code> CdA = 0,06 + (CdA_setup - 0,06) × (h/1,80)^1,1 × (m/74)^0,45</code>.
+            Große/schwere Fahrer bekommen dadurch einen höheren CdA-Vorschlag, kleinere/leichtere einen niedrigeren. Der Prozentwert
+            bleibt bewusst editierbar, weil Position, Schulterbreite und Messdaten wichtiger sein können als reine Körpergröße.
+          </p>
+        </section>
+      </div>
+    </details>
   );
 }
 
@@ -1089,19 +1263,25 @@ function CourseEvaluation({
 function CoursesView({
   savedCourses,
   currentRoute,
+  result,
+  hasPendingSimulation,
   onSaveCurrent,
   onOpenCourse,
   onDeleteCourse,
   onImportGpx,
+  onRunSimulation,
   activeView,
   setActiveView
 }: {
   savedCourses: SavedCourse[];
   currentRoute: PreparedRoute | null;
+  result: SimulationResult | null;
+  hasPendingSimulation: boolean;
   onSaveCurrent: () => void;
   onOpenCourse: (id: string) => void;
   onDeleteCourse: (id: string) => void;
   onImportGpx: () => void;
+  onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1109,14 +1289,14 @@ function CoursesView({
     <main className="profile-workspace">
       <section className="profile-main">
         <div className="page-strip">
-          <h2>Kurse</h2>
+          <h2>Strecken</h2>
         </div>
 
         <section className="profile-form-surface">
           <div className="race-plan-actions">
             <button className="button secondary" type="button" onClick={onSaveCurrent} disabled={!currentRoute}>
               <Save size={17} />
-              Aktuellen Kurs speichern
+              Aktuelle Strecke speichern
             </button>
             <button className="button ghost" type="button" onClick={onImportGpx}>
               <Upload size={17} />
@@ -1125,8 +1305,14 @@ function CoursesView({
           </div>
 
           {currentRoute && (
-            <FormSection title="Aktueller Kurs">
-              <CourseSummary route={currentRoute} />
+            <FormSection title="Aktuelle Strecke">
+              <CourseEvaluation
+                route={currentRoute}
+                result={result}
+                hasPendingSimulation={hasPendingSimulation}
+                onImportGpx={onImportGpx}
+                onRunSimulation={onRunSimulation}
+              />
               <RouteMap route={currentRoute} />
             </FormSection>
           )}
@@ -1134,8 +1320,8 @@ function CoursesView({
           {savedCourses.length === 0 ? (
             <section className="empty-route-panel compact-panel">
               <Map size={32} />
-              <h2>Keine Kurse gespeichert</h2>
-              <p>Lade eine GPX und speichere sie als lokalen Kurs.</p>
+              <h2>Keine Strecken gespeichert</h2>
+              <p>Lade eine GPX und speichere sie als lokale Strecke.</p>
             </section>
           ) : (
             <div className="course-list">
@@ -1164,17 +1350,6 @@ function CoursesView({
 
       <AccountRail activeView={activeView} setActiveView={setActiveView} />
     </main>
-  );
-}
-
-function CourseSummary({ route }: { route: PreparedRoute }) {
-  return (
-    <div className="stat-grid two">
-      <Stat label="Name" value={route.name} />
-      <Stat label="Distanz" value={formatDistance(route.totalDistanceM)} />
-      <Stat label="Anstieg" value={formatMeters(route.totalAscentM)} />
-      <Stat label="Abfahrt" value={formatMeters(route.totalDescentM)} />
-    </div>
   );
 }
 
@@ -1228,8 +1403,9 @@ function ProfileView({
           <FormSection title="Prediction-CdA">
             <div className="calculated-row">
               <p className="calculated-note">
-                Groesse und Gewicht werden nur in der Prediction für die CdA-Skalierung genutzt. Der Formelwert ist ein Vorschlag;
-                du kannst den Prozentwert manuell korrigieren.
+                Groesse und Gewicht werden nur in der Prediction für die optionale CdA-Skalierung genutzt. Ohne diese Skalierung hängt die
+                Aerodynamik nicht von deiner Körpergröße ab; Größe ändert dann keinen CdA-Wert. Gewicht wirkt weiterhin über Masse,
+                Rollwiderstand und Steigungen. Der Formelwert ist ein Vorschlag; du kannst den Prozentwert manuell korrigieren.
               </p>
               <div className="calculated-note cda-scale-note">
                 Prediction-CdA-Skalierung: {(riderCdaScale * 100).toFixed(1)}% der Referenz
@@ -1632,10 +1808,9 @@ function AccountRail({
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
   const items = [
-    { label: "Dashboard", icon: <LayoutDashboard size={16} />, view: "simulator" as ActiveView },
     { label: "Profil", icon: <User size={16} />, view: "profile" as ActiveView },
     { label: "Räder", icon: <Bike size={16} />, view: "bike" as ActiveView },
-    { label: "Kurse", icon: <Map size={16} />, view: "courses" as ActiveView },
+    { label: "Strecken", icon: <Map size={16} />, view: "courses" as ActiveView },
     { label: "Race-Pläne", icon: <Target size={16} />, view: "racePlans" as ActiveView }
   ];
 
