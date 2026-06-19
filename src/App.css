@@ -1,19 +1,19 @@
 :root {
-  color-scheme: light;
-  --bg: #eeeff0;
-  --surface: #ffffff;
-  --surface-2: #eef3ef;
-  --line: #d9e1db;
-  --text: #18211d;
-  --muted: #69746e;
-  --green: #166d5a;
-  --green-2: #dfeee8;
-  --blue: #315a95;
-  --blue-2: #e1e9f7;
-  --orange: #b76422;
-  --orange-2: #f4e4d4;
-  --red: #a33b35;
-  --shadow: 0 18px 42px rgba(31, 43, 35, 0.09);
+  color-scheme: dark;
+  --bg: #0c1012;
+  --surface: #151b1e;
+  --surface-2: #1e272a;
+  --line: #314044;
+  --text: #eef6f3;
+  --muted: #9aa8a3;
+  --green: #28d49b;
+  --green-2: rgba(40, 212, 155, 0.14);
+  --blue: #58a6ff;
+  --blue-2: rgba(88, 166, 255, 0.16);
+  --orange: #ff9b45;
+  --orange-2: rgba(255, 155, 69, 0.16);
+  --red: #ff665f;
+  --shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
@@ -1432,6 +1432,398 @@ tbody tr:hover {
   stroke: #fff;
   stroke-width: 0.55;
   vector-effect: non-scaling-stroke;
+}
+
+.range-field.warning input {
+  accent-color: var(--orange);
+}
+
+.range-field.danger input {
+  accent-color: var(--red);
+}
+
+.range-field.reserve input {
+  accent-color: #f4f4f1;
+}
+
+.range-field.safe input {
+  accent-color: #b8b8b8;
+}
+
+.range-field.good input {
+  accent-color: #d7d7d2;
+}
+
+.range-field.strong input {
+  accent-color: #ffd21c;
+}
+
+.range-field.runWalk input {
+  accent-color: #ff9b18;
+}
+
+.range-field.blown input {
+  accent-color: #ff5a00;
+}
+
+.range-field.warning strong {
+  color: var(--orange);
+}
+
+.range-field.danger strong {
+  color: var(--red);
+}
+
+.range-field.reserve strong,
+.range-field.safe strong,
+.range-field.good strong {
+  color: var(--text);
+}
+
+.range-field.strong strong {
+  color: #ffd21c;
+}
+
+.range-field.runWalk strong {
+  color: #ffad3d;
+}
+
+.range-field.blown strong {
+  color: #ff7a32;
+}
+
+.range-field strong small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.power-warning {
+  margin: 8px 0 0;
+  border: 1px solid rgba(255, 155, 69, 0.35);
+  border-radius: 7px;
+  padding: 9px 10px;
+  color: #ffd3a6;
+  background: rgba(255, 155, 69, 0.12);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.power-warning.danger {
+  border-color: rgba(255, 102, 95, 0.42);
+  color: #ffb8b4;
+  background: rgba(255, 102, 95, 0.13);
+}
+
+.pacing-risk-box {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #11191c;
+}
+
+.pacing-risk-box .risk-swatch {
+  width: 18px;
+  min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+}
+
+.pacing-risk-box strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.pacing-risk-box p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.pacing-risk-box small {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pacing-risk-box.reserve .risk-swatch {
+  background: #f4f4f1;
+}
+
+.pacing-risk-box.safe .risk-swatch {
+  background: #b8b8b8;
+}
+
+.pacing-risk-box.good .risk-swatch {
+  background: #d7d7d2;
+}
+
+.pacing-risk-box.strong {
+  border-color: rgba(255, 210, 28, 0.42);
+}
+
+.pacing-risk-box.strong .risk-swatch {
+  background: #ffd21c;
+}
+
+.pacing-risk-box.runWalk {
+  border-color: rgba(255, 155, 24, 0.48);
+}
+
+.pacing-risk-box.runWalk .risk-swatch {
+  background: #ff9b18;
+}
+
+.pacing-risk-box.blown {
+  border-color: rgba(255, 90, 0, 0.56);
+}
+
+.pacing-risk-box.blown .risk-swatch {
+  background: #ff5a00;
+}
+
+.yaw-cda-summary {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--surface-2);
+}
+
+.yaw-cda-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.yaw-cda-grid {
+  display: grid;
+  grid-template-columns: 44px repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.yaw-cda-grid b,
+.yaw-cda-grid strong {
+  color: var(--text);
+  font-size: 0.7rem;
+}
+
+.yaw-cda-grid span {
+  min-width: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  background:
+    linear-gradient(180deg, #101619 0%, var(--bg) 230px),
+    var(--bg);
+}
+
+.topbar {
+  border-bottom: 1px solid #263438;
+  background: #101619;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.brand-mark {
+  color: #06120f;
+  background: linear-gradient(135deg, var(--green), var(--blue));
+}
+
+.brand h1 {
+  color: var(--text);
+}
+
+.brand p,
+.top-nav button {
+  color: var(--muted);
+}
+
+.top-nav button.active,
+.top-nav button:hover {
+  color: var(--text);
+  background: #223034;
+}
+
+.button {
+  color: var(--text);
+  border-color: var(--line);
+  background: #1a2326;
+}
+
+.button.secondary {
+  color: #06120f;
+  background: var(--green);
+}
+
+.button.ghost {
+  color: var(--text);
+  border-color: #3a4a4f;
+  background: #202a2e;
+}
+
+.input-wrap,
+.form-field input,
+.form-field select,
+.choice-group,
+.choice-group button,
+.cda-table,
+.cda-row input,
+.analysis-tabs button,
+.bbs-analysis-panel,
+.race-accordion,
+.empty-route-panel,
+.race-plan-card,
+.course-card,
+.race-hero,
+.scenario {
+  color: var(--text);
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.form-field,
+.choice-field,
+.date-field,
+.profile-form-surface .number-field,
+.calculated-note,
+.toggle-line,
+.course-title-row strong,
+.empty-route-panel h2,
+.drag-method,
+.drag-method em,
+.cda-table h4,
+.cda-header,
+.cda-row,
+.race-plan-card h3,
+.course-card h3,
+.race-hero h3,
+.race-accordion summary,
+.marker-summary {
+  color: var(--text);
+}
+
+.page-strip {
+  border-bottom-color: #263438;
+  background: #141b1f;
+}
+
+.page-strip h2,
+.page-strip span {
+  color: var(--text);
+}
+
+.form-section h3 {
+  border-bottom-color: var(--line);
+  color: var(--text);
+}
+
+.choice-group button.active,
+.analysis-toggle button.active {
+  color: #06120f;
+  background: var(--green);
+}
+
+.analysis-toggle button,
+.map-controls button {
+  color: var(--text);
+  border-color: var(--line);
+  background: #1d272b;
+}
+
+.analysis-tabs button.active {
+  color: var(--text);
+  border-bottom-color: var(--surface);
+  background: var(--surface);
+}
+
+.rail-menu button {
+  color: var(--muted);
+  border-color: var(--line);
+  background: #141b1f;
+}
+
+.rail-menu button.active,
+.rail-menu button:hover {
+  color: var(--text);
+  background: #202a2e;
+}
+
+.radio-dot {
+  border-color: var(--line);
+  background: #0f1518;
+}
+
+.drag-method.active .radio-dot {
+  border-color: var(--green);
+  background: var(--green);
+  box-shadow: inset 0 0 0 5px #0f1518;
+}
+
+th {
+  color: var(--text);
+  background: #1b2427;
+}
+
+tbody tr:hover {
+  background: rgba(88, 166, 255, 0.09);
+}
+
+.help-tooltip {
+  color: var(--text);
+  border-color: #436067;
+  background: #11191c;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
+}
+
+.help-tooltip::after {
+  border-right-color: #436067;
+  border-bottom-color: #436067;
+  background: #11191c;
+}
+
+.metric.gray {
+  border-left-color: #8da19a;
+}
+
+.metric.gray .metric-icon {
+  color: #d1ddd8;
+  background: rgba(141, 161, 154, 0.17);
+}
+
+.grid-lines line {
+  stroke: rgba(154, 168, 163, 0.18);
+}
+
+.race-marker-line {
+  stroke: var(--text);
+}
+
+.race-marker-dot,
+.route-marker {
+  fill: var(--green);
+  stroke: #06120f;
 }
 
 @media (max-width: 1120px) {

@@ -76,7 +76,7 @@ const modeHelp: Record<SimulationMode, string> = {
 
 const pacingFieldHelp = {
   targetPower:
-    "Anker der Prediction. Im Terrain-Modus ist das der Ziel-Mittelwert, um den die Leistungsplanung herum verteilt wird.",
+    "Zielintensitaet als Prozent von FTP. Die Farbrueckmeldung nutzt Bike-TSS aus Zielzeit und IF: TSS = Stunden mal IF im Quadrat mal 100. Dadurch wird dieselbe FTP-Prozentzahl bei langer Radzeit riskanter bewertet als bei kurzer Radzeit.",
   minPower:
     "Untere Grenze fuer geplante Leistung. Verhindert, dass Abfahrten oder leichte Passagen unrealistisch stark auf Null fallen.",
   maxPower:
@@ -96,10 +96,12 @@ const pacingFieldHelp = {
 };
 
 const EQUIPMENT_CDA_M2 = 0.06;
+const APP_NAME = "Ironman Bike Split Predictor";
 
 type ActiveView = "simulator" | "profile" | "bike" | "courses" | "racePlans" | "raceDetails";
 type ChartAxis = "distance" | "time";
 type DragMethod = "basic" | "fit" | "manual";
+type PacingRiskLevel = "reserve" | "safe" | "good" | "strong" | "runWalk" | "blown";
 
 interface AthleteProfile {
   heightCm: number;
@@ -280,6 +282,120 @@ const racingPositionOptions = [
 const climbingPositionOptions = ["Upright", "Tops", "Hoods/Bullhorns", "Mountain Bike Bars"];
 const helmetTypeOptions = ["Road", "Aero", "Mountain"];
 
+const optionDisplayLabels: Record<string, string> = {
+  Road: "Rennrad",
+  "Aero Road": "Aero-Rennrad",
+  "Tri/TT (entry level)": "Tri/TT (Einsteiger)",
+  "Tri/TT": "Tri/TT",
+  Gravel: "Gravel",
+  Mountain: "MTB",
+  "High End": "High-End",
+  "Mid Range": "Mittelklasse",
+  "Entry Level": "Einsteiger",
+  "Standard Box Rim": "Standard-Felge",
+  "Minimal Depth (30s)": "Flach/Mittel (30er)",
+  "Medium Depth (60s)": "Hochprofil (60er)",
+  "Deep Depth (90s)": "Sehr hoch (90er)",
+  "Tri-Spoke": "Tri-Spoke",
+  Disc: "Scheibe",
+  Narrow: "Schmal",
+  Wide: "Breit",
+  "Clincher (narrow 19-21)": "Clincher schmal (19-21)",
+  "Clincher (medium 22-24)": "Clincher mittel (22-24)",
+  "Clincher (wide 25-28)": "Clincher breit (25-28)",
+  "Clincher (wider 30+)": "Clincher sehr breit (30+)",
+  "Tubular (narrow 19-21)": "Schlauchreifen schmal (19-21)",
+  "Tubular (medium 22-24)": "Schlauchreifen mittel (22-24)",
+  "Tubular (wide 25-28)": "Schlauchreifen breit (25-28)",
+  "Tubular (wider 30+)": "Schlauchreifen sehr breit (30+)",
+  "Gravel Tires": "Gravel-Reifen",
+  "Mountain Bike Tires": "MTB-Reifen",
+  Butyl: "Butyl",
+  Latex: "Latex",
+  Tubeless: "Tubeless",
+  Tops: "Oberlenker",
+  Hoods: "Bremsgriffe",
+  Drops: "Unterlenker",
+  "Aerobars (Recreational Triathlete)": "Aerobars (Freizeit-Triathlet)",
+  "Aerobars (Midpack Triathlete)": "Aerobars (Mittelfeld)",
+  "Aerobars (Advanced Triathlete)": "Aerobars (Fortgeschritten)",
+  "Aerobars (Elite/Pro Time Trial)": "Aerobars (Elite/Pro)",
+  "Mountain Bike Bars": "MTB-Lenker",
+  Upright: "Aufrecht",
+  "Hoods/Bullhorns": "Bremsgriffe/Bullhorns",
+  Aero: "Aero"
+};
+
+const labelHelp: Record<string, string> = {
+  Fahrer: "Koerpergewicht des Fahrers. Es beeinflusst Rollwiderstand, Steigungsleistung und bei aktivierter CdA-Skalierung auch den fahrerabhaengigen Luftwiderstandsanteil.",
+  Groesse: "Koerpergroesse des Fahrers. Sie wird nicht auf der Bike-Seite in die Basis-CdA eingerechnet, sondern erst in der Prediction fuer die optionale CdA-Skalierung.",
+  Gewicht: "Koerpergewicht des Fahrers. Zusammen mit Radgewicht bestimmt es die Masse, die bergauf beschleunigt und gegen die Schwerkraft bewegt wird.",
+  FTP: "Functional Threshold Power. Wird fuer Intensitaeten, Prozent-FTP und die Bewertung der geplanten Leistung verwendet.",
+  Rad: "Radgewicht ohne Fahrer. Es wirkt vor allem an Steigungen und beim Beschleunigen nach langsamen Kurven.",
+  "Radgewicht": "Gewicht des kompletten Rads inklusive typischer Anbauteile. Geht in die Systemmasse ein.",
+  "Radname": "Lokaler Name fuer dieses Radprofil. Der Name dient nur zur Wiedererkennung in gespeicherten Race Plaenen.",
+  "Radtyp": "Grundtyp des Rads. Das lokale BBS-nahe Modell nutzt ihn als Basis fuer Rollwiderstand und aerodynamische Schaetzung.",
+  Komponenten: "Qualitaetsstufe der Komponenten. Sie beeinflusst vor allem mechanische Verluste und einen kleinen Aerodynamikanteil.",
+  "Vorderrad-Typ": "Felgenform vorne. Das Vorderrad beeinflusst die CdA je nach Windwinkel deutlich staerker als viele andere Radteile.",
+  "Vorderrad-Breite": "Breite des Vorderrads bzw. Felgensystems. Breitere moderne Setups koennen je nach Reifen aerodynamisch guenstiger sein.",
+  "Hinterrad-Typ": "Felgenform hinten. Eine Scheibe reduziert in der Regel die CdA, besonders bei kleinen bis mittleren Yaw-Winkeln.",
+  "Hinterrad-Breite": "Breite des Hinterrads bzw. Felgensystems. Wird zusammen mit Reifen- und Felgentyp in die CdA-Schaetzung aufgenommen.",
+  "Reifentyp": "Reifenkategorie und Breite. Beeinflusst Rollwiderstand und in kleinerem Umfang die Aerodynamik.",
+  "Schlauchsystem": "Butyl, Latex oder Tubeless. Wird fuer den Rollwiderstand des Setups genutzt.",
+  "Rennposition": "Position fuer schnelle Abschnitte. Sie bestimmt die Racing-CdA, solange die Climb-Position nicht aktiv wird.",
+  "Kletterposition": "Position fuer langsame Steigungen. Wird genutzt, wenn die Geschwindigkeit unter dem Climb-Wechsel liegt und die Steigung relevant ist.",
+  "Helmtyp": "Helmform fuer die Aerodynamik. Aero-Helme senken die Racing-CdA im Modell leicht.",
+  "CdA Race": "Aerodynamischer Widerstand in Rennposition bei 0 Grad Yaw. Niedriger ist schneller, aber nur realistisch, wenn Position und Equipment passen.",
+  "CdA Climb": "Aerodynamischer Widerstand in Kletterposition bei 0 Grad Yaw. Dieser Wert ist hoeher, weil die Position aufrechter ist.",
+  Crr: "Rollwiderstandskoeffizient. Gute TT-Reifen liegen oft um 0,003 bis 0,004; schlechtere Setups deutlich hoeher.",
+  Antrieb: "Mechanischer Verlust des Antriebs in Prozent. Er reduziert die Leistung, die am Rad ankommt.",
+  "Max. Tempo": "Geschwindigkeitsdeckel fuer die Simulation. Hilft, unrealistische Abfahrtsgeschwindigkeiten zu begrenzen.",
+  Wind: "Windgeschwindigkeit. Zusammen mit Richtung und Kursverlauf erzeugt sie Ruecken-, Gegen- und Seitenwind.",
+  Richtung: "Windrichtung in Grad. 0 Grad bedeutet Wind aus Norden, 90 Grad aus Osten.",
+  "Temp.": "Temperatur fuer die Luftdichte. Warme Luft ist etwas duennere Luft und senkt den Luftwiderstand.",
+  Druck: "Luftdruck fuer die Luftdichte. Hoeherer Druck erhoeht die Luftdichte und damit den Luftwiderstand.",
+  Feuchte: "Relative Luftfeuchte fuer die Luftdichte. Der Effekt ist klein, wird aber mitgerechnet.",
+  "CdA Scale": "Manueller Prozentwert fuer die fahrerabhaengige CdA-Skalierung. 100% entspricht der Referenzstatur, nicht zwingend deinem optimalen Messwert.",
+  "Zielpower": "Zielintensitaet in Prozent deiner FTP. Der Wattwert wird daraus berechnet. Die Farbbox bewertet Zielzeit und Intensitaetsfaktor zusammen als Bike-TSS-Matrix.",
+  "Terrain-Faktor": "Steuert, wie stark Leistung von schnellen Abschnitten in Anstiege und Kurvenausgaenge verschoben wird.",
+  "Min W": "Untergrenze der geplanten Leistung. Verhindert unrealistisch starkes Rollenlassen.",
+  "Max W": "Absolute Obergrenze der geplanten Leistung. Boosts und Bergleistung werden hier gekappt.",
+  "Max Boost": "Prozentuale Obergrenze oberhalb der Zielpower. Sie begrenzt kurze Leistungsspitzen.",
+  "Kurven-Exit": "Extra-Leistung nach engen Richtungswechseln, um Beschleunigen aus Kurven zu modellieren.",
+  "Exit-Distanz": "Strecke, ueber die der Kurven-Exit-Boost nach einer Kurve auslaeuft.",
+  Kurvenbremse: "Empfindlichkeit fuer Kurvenbremsen. Hoehere Werte reduzieren die Geschwindigkeit bei engen Richtungswechseln staerker.",
+  "Min Kurve": "Mindestgeschwindigkeit, unter die das Kurvenmodell nicht bremst.",
+  "Climb-Wechsel": "Tempo-Schwelle fuer die Kletterposition. Unterhalb dieses Tempos und bei Steigung wird CdA Climb genutzt.",
+  Distanz: "Gesamtdistanz des geladenen oder gespeicherten Kurses.",
+  Segmente: "Anzahl der berechneten Streckenbloecke. Kleinere Bloecke bilden Kurven und Steigungen feiner ab.",
+  Anstieg: "Kumulierte Hoehenmeter bergauf aus dem GPX-Hoehenprofil.",
+  Abfahrt: "Kumulierte Hoehenmeter bergab aus dem GPX-Hoehenprofil.",
+  Radzeit: "Berechnete reine Radzeit fuer den Kurs.",
+  "Ø Leistung": "Durchschnittliche geplante Leistung ueber alle Segmente.",
+  "Normalized Power": "Geglaettete Belastungsleistung nach 30-Sekunden-Logik. Sie bildet variable Pacing-Peaks besser ab als der Mittelwert.",
+  "Ø Tempo": "Durchschnittsgeschwindigkeit ueber den gesamten Kurs.",
+  "CdA-Skalierung": "Tatsaechlich in der Prediction angewendeter Skalierungsfaktor auf den fahrerabhaengigen CdA-Anteil.",
+  Name: "Lokaler Name des Kurses oder Race Plans.",
+  "Laenge": "Laenge des Abschnitts oder Anstiegs.",
+  Steigung: "Durchschnittliche Steigung des Segments.",
+  Leistung: "Geplante Leistung fuer dieses Segment.",
+  Zeit: "Zeitdauer fuer dieses Segment oder fuer die markierte Position.",
+  Tempo: "Berechnete Geschwindigkeit im Segment.",
+  Yaw: "Effektiver Windwinkel am Fahrer-Rad-System. Er bestimmt, welcher CdA-Yaw-Wert interpoliert wird.",
+  Position: "Verwendete aerodynamische Position: Aero/Race oder Climb.",
+  "Yaw-Winkel": "Seitlicher Windwinkel relativ zur Fahrtrichtung. Die Tabelle beschreibt die CdA bei festen Referenzwinkeln.",
+  "Rollwiderstand": "Aus Rad-, Reifen- und Schlauchsetup geschaetzter Rollwiderstandskoeffizient.",
+  "Mechanischer Verlust": "Antriebsverlust als Dezimalwert. 0,022 entspricht 2,2% Verlust."
+};
+
+function displayOptionLabel(option: string): string {
+  return optionDisplayLabels[option] ?? option;
+}
+
+function getLabelHelp(label: string): string | undefined {
+  return labelHelp[label];
+}
+
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [route, setRoute] = useState<PreparedRoute | null>(null);
@@ -322,7 +438,11 @@ export default function App() {
   );
   const maxSurgePct = clampNumber(profile.maxPowerSurgePct, 0, 50);
   const effectivePowerCeiling = Math.min(profile.maxPowerW, profile.targetPowerW * (1 + maxSurgePct / 100));
+  const targetPowerPctOfFtp = profile.ftpW > 0 ? (profile.targetPowerW / profile.ftpW) * 100 : 0;
   const result = simulationRun?.result ?? null;
+  const pacingMatrixDurationSec = mode === "goal" ? goalTimeSec : result?.summary.totalTimeSec ?? goalTimeSec;
+  const pacingStressScore = calculateBikeStressScore(targetPowerPctOfFtp / 100, pacingMatrixDurationSec);
+  const pacingRisk = classifyIronmanPacingStress(pacingStressScore);
   const hasPendingSimulation = Boolean(
     route &&
       (!simulationRun ||
@@ -494,30 +614,30 @@ export default function App() {
             <Bike size={22} strokeWidth={2.4} />
           </div>
           <div>
-            <h1>Best Bike Split</h1>
-            <p>Local Model</p>
+            <h1>{APP_NAME}</h1>
+            <p>Lokale Race-Prediction</p>
           </div>
         </div>
-        <nav className="top-nav" aria-label="Main views">
+        <nav className="top-nav" aria-label="Hauptbereiche">
           <button className={currentView === "simulator" ? "active" : ""} type="button" onClick={() => setActiveView("simulator")}>
             <Gauge size={17} />
             Dashboard
           </button>
           <button className={currentView === "profile" ? "active" : ""} type="button" onClick={() => setActiveView("profile")}>
             <User size={17} />
-            Profile
+            Profil
           </button>
           <button className={currentView === "bike" ? "active" : ""} type="button" onClick={() => setActiveView("bike")}>
             <Bike size={17} />
-            Bikes
+            Räder
           </button>
           <button className={currentView === "courses" ? "active" : ""} type="button" onClick={() => setActiveView("courses")}>
             <Map size={17} />
-            Courses
+            Kurse
           </button>
           <button className={currentView === "racePlans" || currentView === "raceDetails" ? "active" : ""} type="button" onClick={() => setActiveView("racePlans")}>
             <Target size={17} />
-            Race Plans
+            Race-Pläne
           </button>
         </nav>
         <div className="top-actions">
@@ -619,14 +739,15 @@ export default function App() {
               <div className="field-grid">
                 <NumberField label="Fahrer" value={profile.riderWeightKg} unit="kg" min={45} max={130} step={0.5} onChange={(value) => setProfileField(setProfile, "riderWeightKg", value)} />
                 <NumberField label="Groesse" value={athleteProfile.heightCm} unit="cm" min={120} max={230} step={1} onChange={(value) => setAthleteField(setAthleteProfile, "heightCm", value)} />
-                <NumberField label="Bike" value={profile.bikeWeightKg} unit="kg" min={5} max={18} step={0.2} onChange={(value) => setProfileField(setProfile, "bikeWeightKg", value)} />
+                <NumberField label="Rad" value={profile.bikeWeightKg} unit="kg" min={5} max={18} step={0.2} onChange={(value) => setProfileField(setProfile, "bikeWeightKg", value)} />
                 <NumberField label="FTP" value={profile.ftpW} unit="W" min={120} max={480} step={5} onChange={(value) => setProfileField(setProfile, "ftpW", value)} />
                 <NumberField label="CdA Race" value={profile.cdaRace} unit="m2" min={0.18} max={0.45} step={0.005} onChange={(value) => setProfileField(setProfile, "cdaRace", value)} />
                 <NumberField label="CdA Climb" value={profile.cdaClimb} unit="m2" min={0.2} max={0.55} step={0.005} onChange={(value) => setProfileField(setProfile, "cdaClimb", value)} />
                 <NumberField label="Crr" value={profile.crr} unit="" min={0.002} max={0.012} step={0.0001} onChange={(value) => setProfileField(setProfile, "crr", value)} />
                 <NumberField label="Antrieb" value={profile.drivetrainLossPct} unit="%" min={0} max={8} step={0.1} onChange={(value) => setProfileField(setProfile, "drivetrainLossPct", value)} />
-                <NumberField label="Max Speed" value={profile.maxSpeedKph} unit="km/h" min={35} max={100} step={1} onChange={(value) => setProfileField(setProfile, "maxSpeedKph", value)} />
+                <NumberField label="Max. Tempo" value={profile.maxSpeedKph} unit="km/h" min={35} max={100} step={1} onChange={(value) => setProfileField(setProfile, "maxSpeedKph", value)} />
               </div>
+              <YawCdaSummary profile={profile} />
               <label className="toggle-line dashboard-toggle">
                 <input
                   type="checkbox"
@@ -683,7 +804,31 @@ export default function App() {
                 ))}
               </div>
 
-              <RangeField label="Zielpower" help={pacingFieldHelp.targetPower} value={profile.targetPowerW} min={90} max={profile.maxPowerW} step={1} unit="W" onChange={(value) => setProfileField(setProfile, "targetPowerW", value)} />
+              <RangeField
+                label="Zielpower"
+                help={pacingFieldHelp.targetPower}
+                value={targetPowerPctOfFtp}
+                min={55}
+                max={90}
+                step={1}
+                unit="% FTP"
+                tone={pacingRisk.level}
+                valueHint={`${formatWatts(profile.targetPowerW)}`}
+                onChange={(value) => {
+                  const nextTargetPowerW = Math.round((profile.ftpW * value) / 100);
+                  setProfile((current) => ({
+                    ...current,
+                    targetPowerW: nextTargetPowerW,
+                    maxPowerW: Math.max(current.maxPowerW, nextTargetPowerW)
+                  }));
+                }}
+              />
+              <PacingRiskBox
+                risk={pacingRisk}
+                stressScore={pacingStressScore}
+                durationSec={pacingMatrixDurationSec}
+                intensityPct={targetPowerPctOfFtp}
+              />
 
               {mode === "goal" && (
                 <div className="field-grid two-column">
@@ -697,7 +842,7 @@ export default function App() {
                   <RangeField label="Terrain-Faktor" help={pacingFieldHelp.pacingAggression} value={profile.pacingAggression} min={0} max={1} step={0.05} unit="" onChange={(value) => setProfileField(setProfile, "pacingAggression", value)} />
                   <div className="field-grid two-column">
                     <NumberField label="Min W" help={pacingFieldHelp.minPower} value={profile.minPowerW} unit="W" min={40} max={profile.targetPowerW} step={5} onChange={(value) => setProfileField(setProfile, "minPowerW", value)} />
-                    <NumberField label="Max W" help={pacingFieldHelp.maxPower} value={profile.maxPowerW} unit="W" min={profile.targetPowerW} max={420} step={5} onChange={(value) => setProfileField(setProfile, "maxPowerW", value)} />
+                    <NumberField label="Max W" help={pacingFieldHelp.maxPower} value={profile.maxPowerW} unit="W" min={profile.targetPowerW} max={600} step={5} onChange={(value) => setProfileField(setProfile, "maxPowerW", value)} />
                     <NumberField
                       label="Max Boost"
                       help={`Prozentuale Obergrenze ueber Zielpower. Bei ${formatWatts(profile.targetPowerW)} und ${maxSurgePct.toFixed(0)}% waere die Boost-Decke ${formatWatts(profile.targetPowerW * (1 + maxSurgePct / 100))}; mit Max W effektiv ${formatWatts(effectivePowerCeiling)}.`}
@@ -716,7 +861,7 @@ export default function App() {
                 </>
               )}
 
-              <NumberField label="Climb Switch" help={pacingFieldHelp.climbSwitch} value={profile.positionSwitchKph} unit="km/h" min={12} max={35} step={1} onChange={(value) => setProfileField(setProfile, "positionSwitchKph", value)} />
+              <NumberField label="Climb-Wechsel" help={pacingFieldHelp.climbSwitch} value={profile.positionSwitchKph} unit="km/h" min={12} max={35} step={1} onChange={(value) => setProfileField(setProfile, "positionSwitchKph", value)} />
             </Panel>
           </aside>
 
@@ -725,8 +870,8 @@ export default function App() {
               <>
                 <section className="summary-band">
                   <Metric icon={<Timer size={20} />} label="Bike Split" value={formatTime(simulationRun.result.summary.totalTimeSec)} accent="green" />
-                  <Metric icon={<Gauge size={20} />} label="Schnitt" value={formatSpeed(simulationRun.result.summary.averageSpeedMps)} accent="blue" />
-                  <Metric icon={<Activity size={20} />} label={simulationRun.result.solvedPowerW ? "Erforderlich" : "Avg Power"} value={formatWatts(simulationRun.result.solvedPowerW ?? simulationRun.result.summary.averagePowerW)} accent="orange" />
+                  <Metric icon={<Gauge size={20} />} label="Ø Tempo" value={formatSpeed(simulationRun.result.summary.averageSpeedMps)} accent="blue" />
+                  <Metric icon={<Activity size={20} />} label={simulationRun.result.solvedPowerW ? "Erforderlich" : "Ø Leistung"} value={formatWatts(simulationRun.result.solvedPowerW ?? simulationRun.result.summary.averagePowerW)} accent="orange" />
                   <Metric icon={<Target size={20} />} label="Normalized Power" value={formatWatts(simulationRun.result.summary.normalizedPowerW)} accent="gray" />
                 </section>
 
@@ -737,11 +882,11 @@ export default function App() {
                   </button>
                   <button className="button secondary" type="button" onClick={saveCurrentRacePlan}>
                     <Save size={17} />
-                    Race Plan speichern
+                    Race-Plan speichern
                   </button>
                   <button className="button ghost" type="button" onClick={() => setActiveView("racePlans")}>
                     <Target size={17} />
-                    Race Plans
+                    Race-Pläne
                   </button>
                   {hasPendingSimulation && <span className="pending-pill">Änderungen nicht berechnet</span>}
                 </div>
@@ -811,21 +956,83 @@ function Panel({ icon, title, children }: { icon: ReactNode; title: string; chil
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, help }: { label: string; value: string; help?: string }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <div className="stat">
-      <span>{label}</span>
+      <span className="stat-label">
+        {label}
+        {helpText && <HelpTip text={helpText} />}
+      </span>
       <strong>{value}</strong>
     </div>
   );
 }
 
-function Metric({ icon, label, value, accent }: { icon: ReactNode; label: string; value: string; accent: string }) {
+function Metric({ icon, label, value, accent, help }: { icon: ReactNode; label: string; value: string; accent: string; help?: string }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <div className={`metric ${accent}`}>
       <span className="metric-icon">{icon}</span>
-      <span>{label}</span>
+      <span className="metric-label">
+        {label}
+        {helpText && <HelpTip text={helpText} />}
+      </span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function PacingRiskBox({
+  risk,
+  stressScore,
+  durationSec,
+  intensityPct
+}: {
+  risk: ReturnType<typeof classifyIronmanPacingStress>;
+  stressScore: number;
+  durationSec: number;
+  intensityPct: number;
+}) {
+  return (
+    <div className={`pacing-risk-box ${risk.level}`}>
+      <span className="risk-swatch" />
+      <div>
+        <strong>{risk.title}</strong>
+        <p>{risk.detail}</p>
+        <small>
+          Matrix: {formatTime(durationSec)} Radzeit × {intensityPct.toFixed(0)}% FTP = TSS {Math.round(stressScore)}
+        </small>
+      </div>
+    </div>
+  );
+}
+
+function YawCdaSummary({ profile }: { profile: RiderBikeProfile }) {
+  const yawAngles = ["0", "5", "10", "15", "20"];
+  const raceValues = profile.cdaRaceYaw ?? {};
+  const climbValues = profile.cdaClimbYaw ?? {};
+
+  return (
+    <div className="yaw-cda-summary">
+      <div className="yaw-cda-title">
+        <span>CdA nach Yaw</span>
+        <HelpTip text="Die Dashboard-Felder CdA Race und CdA Climb zeigen nur 0 Grad. In der Simulation wird je Segment der effektive Yaw-Winkel aus Windrichtung, Windstaerke und Fahrtrichtung berechnet und zwischen diesen Tabellenwerten interpoliert." />
+      </div>
+      <div className="yaw-cda-grid">
+        <span />
+        {yawAngles.map((yaw) => (
+          <b key={yaw}>{yaw}°</b>
+        ))}
+        <strong>Race</strong>
+        {yawAngles.map((yaw) => (
+          <span key={`race-${yaw}`}>{(raceValues[yaw] ?? profile.cdaRace).toFixed(3)}</span>
+        ))}
+        <strong>Climb</strong>
+        {yawAngles.map((yaw) => (
+          <span key={`climb-${yaw}`}>{(climbValues[yaw] ?? profile.cdaClimb).toFixed(3)}</span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -874,12 +1081,12 @@ function CourseEvaluation({
       </div>
       <div className="stat-grid two">
         <Stat label="Distanz" value={formatDistance(route.totalDistanceM)} />
-        <Stat label="Segments" value={String(route.segments.length)} />
+        <Stat label="Segmente" value={String(route.segments.length)} />
         <Stat label="Anstieg" value={formatMeters(route.totalAscentM)} />
         <Stat label="Abfahrt" value={formatMeters(route.totalDescentM)} />
-        <Stat label="Bike Split" value={result ? formatTime(result.summary.totalTimeSec) : "offen"} />
-        <Stat label="Avg Power" value={result ? formatWatts(result.solvedPowerW ?? result.summary.averagePowerW) : "offen"} />
-        <Stat label="NP" value={result ? formatWatts(result.summary.normalizedPowerW) : "offen"} />
+        <Stat label="Radzeit" value={result ? formatTime(result.summary.totalTimeSec) : "offen"} />
+        <Stat label="Ø Leistung" value={result ? formatWatts(result.solvedPowerW ?? result.summary.averagePowerW) : "offen"} />
+        <Stat label="Normalized Power" value={result ? formatWatts(result.summary.normalizedPowerW) : "offen"} />
       </div>
       {hasPendingSimulation && result && <p className="stale-note">Eingaben geändert. Ergebnis ist noch nicht neu berechnet.</p>}
     </div>
@@ -909,7 +1116,7 @@ function CoursesView({
     <main className="profile-workspace">
       <section className="profile-main">
         <div className="page-strip">
-          <h2>Courses</h2>
+          <h2>Kurse</h2>
         </div>
 
         <section className="profile-form-surface">
@@ -943,17 +1150,17 @@ function CoursesView({
                 <article className="course-card" key={course.id}>
                   <div>
                     <h3>{course.name}</h3>
-                    <p>Saved {formatDateTime(course.createdAt)}</p>
+                    <p>Gespeichert {formatDateTime(course.createdAt)}</p>
                   </div>
                   <div className="race-plan-card-stats">
-                    <Stat label="Distance" value={formatDistance(course.totalDistanceM)} />
-                    <Stat label="Ascent" value={formatMeters(course.totalAscentM)} />
-                    <Stat label="Descent" value={formatMeters(course.totalDescentM)} />
+                    <Stat label="Distanz" value={formatDistance(course.totalDistanceM)} />
+                    <Stat label="Anstieg" value={formatMeters(course.totalAscentM)} />
+                    <Stat label="Abfahrt" value={formatMeters(course.totalDescentM)} />
                   </div>
                   <RouteMap course={course} compact />
                   <div className="race-plan-card-actions">
                     <button className="button secondary" type="button" onClick={() => onOpenCourse(course.id)}>Öffnen</button>
-                    <button className="button ghost" type="button" onClick={() => onDeleteCourse(course.id)}>Delete</button>
+                    <button className="button ghost" type="button" onClick={() => onDeleteCourse(course.id)}>Löschen</button>
                   </div>
                 </article>
               ))}
@@ -971,9 +1178,9 @@ function CourseSummary({ route }: { route: PreparedRoute }) {
   return (
     <div className="stat-grid two">
       <Stat label="Name" value={route.name} />
-      <Stat label="Distance" value={formatDistance(route.totalDistanceM)} />
-      <Stat label="Ascent" value={formatMeters(route.totalAscentM)} />
-      <Stat label="Descent" value={formatMeters(route.totalDescentM)} />
+      <Stat label="Distanz" value={formatDistance(route.totalDistanceM)} />
+      <Stat label="Anstieg" value={formatMeters(route.totalAscentM)} />
+      <Stat label="Abfahrt" value={formatMeters(route.totalDescentM)} />
     </div>
   );
 }
@@ -1013,7 +1220,7 @@ function ProfileView({
     <main className="profile-workspace">
       <section className="profile-main">
         <div className="page-strip">
-          <h2>Profile <span>(update)</span></h2>
+          <h2>Profil</h2>
         </div>
 
         <section className="profile-form-surface">
@@ -1028,7 +1235,7 @@ function ProfileView({
           <FormSection title="Prediction-CdA">
             <div className="calculated-row">
               <p className="calculated-note">
-                Groesse und Gewicht werden nur in der Prediction fuer die CdA-Skalierung genutzt. Der Formelwert ist ein Vorschlag;
+                Groesse und Gewicht werden nur in der Prediction für die CdA-Skalierung genutzt. Der Formelwert ist ein Vorschlag;
                 du kannst den Prozentwert manuell korrigieren.
               </p>
               <div className="calculated-note cda-scale-note">
@@ -1144,67 +1351,67 @@ function BikeProfileView({
     <main className="profile-workspace">
       <section className="profile-main">
         <div className="page-strip">
-          <h2>Bike <span>(update)</span></h2>
+          <h2>Radprofil</h2>
         </div>
 
         <section className="profile-form-surface bike-form">
-          <FormSection title="Bike Data">
+          <FormSection title="Raddaten">
             <div className="bike-grid four">
-              <TextField label="Bike Name" value={bikeSetup.bikeName} onChange={(value) => setBikeSetupField(setBikeSetup, "bikeName", value)} />
-              <SelectField label="Bike Type" value={bikeSetup.bikeType} options={bikeTypeOptions} onChange={(value) => updateBikeSetup("bikeType", value)} />
-              <NumberField label="Bike Weight" value={profile.bikeWeightKg} unit="kg" min={5} max={18} step={0.1} onChange={(value) => setProfileField(setProfile, "bikeWeightKg", value)} />
-              <SelectField label="Components" value={bikeSetup.components} options={componentOptions} onChange={(value) => updateBikeSetup("components", value)} />
+              <TextField label="Radname" value={bikeSetup.bikeName} onChange={(value) => setBikeSetupField(setBikeSetup, "bikeName", value)} />
+              <SelectField label="Radtyp" value={bikeSetup.bikeType} options={bikeTypeOptions} onChange={(value) => updateBikeSetup("bikeType", value)} />
+              <NumberField label="Radgewicht" value={profile.bikeWeightKg} unit="kg" min={5} max={18} step={0.1} onChange={(value) => setProfileField(setProfile, "bikeWeightKg", value)} />
+              <SelectField label="Komponenten" value={bikeSetup.components} options={componentOptions} onChange={(value) => updateBikeSetup("components", value)} />
             </div>
           </FormSection>
 
-          <FormSection title="Wheel & Tire Data">
+          <FormSection title="Laufräder & Reifen">
             <div className="bike-grid four">
-              <SelectField label="Front Wheel Type" value={bikeSetup.frontWheelType} options={frontWheelTypeOptions} onChange={(value) => updateBikeSetup("frontWheelType", value)} />
-              <SelectField label="Front Wheel Width" value={bikeSetup.frontWheelWidth} options={wheelWidthOptions} onChange={(value) => updateBikeSetup("frontWheelWidth", value)} />
-              <SelectField label="Rear Wheel Type" value={bikeSetup.rearWheelType} options={rearWheelTypeOptions} onChange={(value) => updateBikeSetup("rearWheelType", value)} />
-              <SelectField label="Rear Wheel Width" value={bikeSetup.rearWheelWidth} options={wheelWidthOptions} onChange={(value) => updateBikeSetup("rearWheelWidth", value)} />
-              <SelectField label="Tire Type" value={bikeSetup.tireType} options={tireTypeOptions} onChange={(value) => updateBikeSetup("tireType", value)} />
-              <SelectField label="Tube Type (clincher only)" value={bikeSetup.tubeType} options={tubeTypeOptions} onChange={(value) => updateBikeSetup("tubeType", value)} />
+              <SelectField label="Vorderrad-Typ" value={bikeSetup.frontWheelType} options={frontWheelTypeOptions} onChange={(value) => updateBikeSetup("frontWheelType", value)} />
+              <SelectField label="Vorderrad-Breite" value={bikeSetup.frontWheelWidth} options={wheelWidthOptions} onChange={(value) => updateBikeSetup("frontWheelWidth", value)} />
+              <SelectField label="Hinterrad-Typ" value={bikeSetup.rearWheelType} options={rearWheelTypeOptions} onChange={(value) => updateBikeSetup("rearWheelType", value)} />
+              <SelectField label="Hinterrad-Breite" value={bikeSetup.rearWheelWidth} options={wheelWidthOptions} onChange={(value) => updateBikeSetup("rearWheelWidth", value)} />
+              <SelectField label="Reifentyp" value={bikeSetup.tireType} options={tireTypeOptions} onChange={(value) => updateBikeSetup("tireType", value)} />
+              <SelectField label="Schlauchsystem" value={bikeSetup.tubeType} options={tubeTypeOptions} onChange={(value) => updateBikeSetup("tubeType", value)} />
             </div>
           </FormSection>
 
-          <FormSection title="Riding Style">
+          <FormSection title="Fahrposition">
             <div className="bike-grid three">
-              <SelectField label="Racing Position" value={bikeSetup.racingPosition} options={racingPositionOptions} onChange={(value) => updateBikeSetup("racingPosition", value)} />
-              <SelectField label="Climbing Position" value={bikeSetup.climbingPosition} options={climbingPositionOptions} onChange={(value) => updateBikeSetup("climbingPosition", value)} />
-              <SelectField label="Helmet Type" value={bikeSetup.helmetType} options={helmetTypeOptions} onChange={(value) => updateBikeSetup("helmetType", value)} />
+              <SelectField label="Rennposition" value={bikeSetup.racingPosition} options={racingPositionOptions} onChange={(value) => updateBikeSetup("racingPosition", value)} />
+              <SelectField label="Kletterposition" value={bikeSetup.climbingPosition} options={climbingPositionOptions} onChange={(value) => updateBikeSetup("climbingPosition", value)} />
+              <SelectField label="Helmtyp" value={bikeSetup.helmetType} options={helmetTypeOptions} onChange={(value) => updateBikeSetup("helmetType", value)} />
             </div>
           </FormSection>
 
-          <FormSection title="Drag Calculations">
+          <FormSection title="Aero-Berechnung">
             <div className="drag-methods">
-              <DragMethodButton title="Use Basic Riding Style" detail="Estimate drag from bike, wheel, tire, helmet, and position choices." value="basic" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
-              <DragMethodButton title="Use Bike Fit Measurements" detail="Use fit measurements and setup selection for a tighter estimate." value="fit" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
-              <DragMethodButton title="Use Manual Entry" detail="Enter zero-yaw and yaw-dependent CdA values manually." value="manual" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
+              <DragMethodButton title="Setup-Schätzung" detail="Schätzt CdA aus Rad, Laufrädern, Reifen, Helm und Position." value="basic" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
+              <DragMethodButton title="Bike-Fit-Maße" detail="Nutzt Maßangaben und Setup-Auswahl für eine engere CdA-Schätzung." value="fit" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
+              <DragMethodButton title="Manuelle Eingabe" detail="Yaw-abhängige CdA-Werte direkt eintragen und das Setup-Modell übersteuern." value="manual" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
             </div>
           </FormSection>
 
           {activeDragMethod === "fit" && (
-            <FormSection title="Bike Fit Measurements">
+            <FormSection title="Bike-Fit-Maße">
               <div className="bike-grid five">
-                <TextField label="Shoulder Width" value={bikeSetup.shoulderWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "shoulderWidth", value)} />
-                <TextField label="Hip Width" value={bikeSetup.hipWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "hipWidth", value)} />
-                <TextField label="Hand Width (Racing)" value={bikeSetup.handleWidthRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthRacing", value)} />
-                <TextField label="Hand Width (Climbing)" value={bikeSetup.handleWidthClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthClimbing", value)} />
-                <TextField label="Hip to Shoulder" value={bikeSetup.hipToShoulder} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToShoulder", value)} />
-                <TextField label="Hip to Head" value={bikeSetup.hipToHead} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToHead", value)} />
-                <TextField label="Seat to Handlebar Drop" value={bikeSetup.seatToHandlebarDrop} onChange={(value) => setBikeSetupField(setBikeSetup, "seatToHandlebarDrop", value)} />
-                <TextField label="Torso Angle (Racing)" value={bikeSetup.torsoAngleRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleRacing", value)} />
-                <TextField label="Torso Angle (Climbing)" value={bikeSetup.torsoAngleClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleClimbing", value)} />
-                <TextField label="Seat Tube Angle" value={bikeSetup.seatTubeAngle} onChange={(value) => setBikeSetupField(setBikeSetup, "seatTubeAngle", value)} />
+                <TextField label="Schulterbreite" value={bikeSetup.shoulderWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "shoulderWidth", value)} />
+                <TextField label="Hüftbreite" value={bikeSetup.hipWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "hipWidth", value)} />
+                <TextField label="Handbreite Race" value={bikeSetup.handleWidthRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthRacing", value)} />
+                <TextField label="Handbreite Climb" value={bikeSetup.handleWidthClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthClimbing", value)} />
+                <TextField label="Hüfte-Schulter" value={bikeSetup.hipToShoulder} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToShoulder", value)} />
+                <TextField label="Hüfte-Kopf" value={bikeSetup.hipToHead} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToHead", value)} />
+                <TextField label="Sattel-Lenker-Drop" value={bikeSetup.seatToHandlebarDrop} onChange={(value) => setBikeSetupField(setBikeSetup, "seatToHandlebarDrop", value)} />
+                <TextField label="Torso-Winkel Race" value={bikeSetup.torsoAngleRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleRacing", value)} />
+                <TextField label="Torso-Winkel Climb" value={bikeSetup.torsoAngleClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleClimbing", value)} />
+                <TextField label="Sitzrohrwinkel" value={bikeSetup.seatTubeAngle} onChange={(value) => setBikeSetupField(setBikeSetup, "seatTubeAngle", value)} />
               </div>
             </FormSection>
           )}
 
-          <FormSection title="Calculated Values">
+          <FormSection title="Berechnete Werte">
             <div className="calculated-bike-grid">
-              <NumberField label="Rolling Resistance" value={profile.crr} unit="" min={0.002} max={0.012} step={0.00001} onChange={(value) => setProfileField(setProfile, "crr", value)} />
-              <NumberField label="Mechanical Loss" value={profile.drivetrainLossPct / 100} unit="" min={0} max={0.08} step={0.001} onChange={(value) => setProfileField(setProfile, "drivetrainLossPct", value * 100)} />
+              <NumberField label="Rollwiderstand" value={profile.crr} unit="" min={0.002} max={0.012} step={0.00001} onChange={(value) => setProfileField(setProfile, "crr", value)} />
+              <NumberField label="Mechanischer Verlust" value={profile.drivetrainLossPct / 100} unit="" min={0} max={0.08} step={0.001} onChange={(value) => setProfileField(setProfile, "drivetrainLossPct", value * 100)} />
               <CdaYawTable
                 title="CdA Racing"
                 values={bikeSetup.cdaRacingByYaw}
@@ -1233,7 +1440,7 @@ function BikeProfileView({
           <div className="button-row">
             <button className="button ghost recalc-button" type="button" onClick={() => applyCalculatedValues({ ...bikeSetup, dragMethod: "basic" })}>
               <RotateCcw size={17} />
-              Recalculate from BBS Options
+              Aus Setup neu berechnen
             </button>
           </div>
 
@@ -1285,7 +1492,7 @@ function RacePlansView({
     <main className="profile-workspace">
       <section className="profile-main">
         <div className="page-strip">
-          <h2>Race Plans</h2>
+          <h2>Race-Pläne</h2>
         </div>
 
         <section className="profile-form-surface">
@@ -1303,8 +1510,8 @@ function RacePlansView({
           {racePlans.length === 0 ? (
             <section className="empty-route-panel compact-panel">
               <Target size={32} />
-              <h2>Keine Race Plans gespeichert</h2>
-              <p>Lade eine GPX und speichere die aktuelle Prediction als Race Plan.</p>
+              <h2>Keine Race-Pläne gespeichert</h2>
+              <p>Lade eine GPX und speichere die aktuelle Prediction als Race-Plan.</p>
             </section>
           ) : (
             <div className="race-plan-list">
@@ -1315,14 +1522,14 @@ function RacePlansView({
                     <p>{plan.courseName} · {formatDateTime(plan.createdAt)}</p>
                   </div>
                   <div className="race-plan-card-stats">
-                    <Stat label="Time" value={formatTime(plan.totalTimeSec)} />
-                    <Stat label="Speed" value={formatSpeed(plan.averageSpeedMps)} />
-                    <Stat label="Power" value={formatWatts(plan.solvedPowerW ?? plan.averagePowerW)} />
-                    <Stat label="NP" value={formatWatts(getRacePlanNormalizedPower(plan))} />
+                    <Stat label="Zeit" value={formatTime(plan.totalTimeSec)} />
+                    <Stat label="Ø Tempo" value={formatSpeed(plan.averageSpeedMps)} />
+                    <Stat label="Ø Leistung" value={formatWatts(plan.solvedPowerW ?? plan.averagePowerW)} />
+                    <Stat label="Normalized Power" value={formatWatts(getRacePlanNormalizedPower(plan))} />
                   </div>
                   <div className="race-plan-card-actions">
                     <button className="button secondary" type="button" onClick={() => onOpenPlan(plan.id)}>Details</button>
-                    <button className="button ghost" type="button" onClick={() => onDeletePlan(plan.id)}>Delete</button>
+                    <button className="button ghost" type="button" onClick={() => onDeletePlan(plan.id)}>Löschen</button>
                   </div>
                 </article>
               ))}
@@ -1361,12 +1568,12 @@ function RaceDetailsView({
       <main className="profile-workspace">
         <section className="profile-main">
           <div className="page-strip">
-            <h2>Race Plan Details</h2>
+            <h2>Race-Plan-Details</h2>
           </div>
           <section className="profile-form-surface">
             <section className="empty-route-panel compact-panel">
               <Target size={32} />
-              <h2>Kein Race Plan ausgewählt</h2>
+              <h2>Kein Race-Plan ausgewählt</h2>
               <button className="button secondary" type="button" onClick={onBack}>Zur Liste</button>
             </section>
           </section>
@@ -1382,24 +1589,24 @@ function RaceDetailsView({
         <div className="page-strip detail-strip">
           <h2>{racePlan.name}</h2>
           <div className="detail-strip-actions">
-            <button className="button ghost" type="button" onClick={onBack}>Back</button>
-            <button className="button ghost" type="button" onClick={() => onDeletePlan(racePlan.id)}>Delete</button>
+            <button className="button ghost" type="button" onClick={onBack}>Zurück</button>
+            <button className="button ghost" type="button" onClick={() => onDeletePlan(racePlan.id)}>Löschen</button>
           </div>
         </div>
 
         <section className="race-analysis-surface">
           <div className="analysis-tabs">
-            {["Power Plan", "Time Analysis", "Weather", "Zones", "Yaw Angles", "Gradients", "Peak Power", "Surfaces", "Notes"].map((tab, index) => (
+            {["Power-Plan", "Zeit-Analyse", "Wetter", "Zonen", "Yaw-Winkel", "Steigungen", "Peak Power", "Untergrund", "Notizen"].map((tab, index) => (
               <button className={index === 0 ? "active" : ""} type="button" key={tab}>{tab}</button>
             ))}
           </div>
 
           <section className="bbs-analysis-panel">
             <div className="analysis-toggle">
-              <button className={chartAxis === "distance" ? "active" : ""} type="button" onClick={() => setChartAxis("distance")}>Distance</button>
-              <button className={chartAxis === "time" ? "active" : ""} type="button" onClick={() => setChartAxis("time")}>Time</button>
+              <button className={chartAxis === "distance" ? "active" : ""} type="button" onClick={() => setChartAxis("distance")}>Strecke</button>
+              <button className={chartAxis === "time" ? "active" : ""} type="button" onClick={() => setChartAxis("time")}>Zeit</button>
             </div>
-            <p className="drag-help">click and drag on the data to view that section's summary metrics</p>
+            <p className="drag-help">Klicken oder ziehen, um Marker und Kartenposition zu setzen.</p>
             <RaceAnalysisChart
               racePlan={racePlan}
               axis={chartAxis}
@@ -1411,25 +1618,25 @@ function RaceDetailsView({
           <RouteMap racePlan={racePlan} markerDistanceM={markerDistanceM} wide />
 
           <details className="race-accordion">
-            <summary>Race Summary</summary>
+            <summary>Race-Zusammenfassung</summary>
             <div className="race-summary-grid">
-              <Stat label="Bike Split" value={formatTime(racePlan.totalTimeSec)} />
-              <Stat label="Distance" value={formatDistance(racePlan.distanceM)} />
-              <Stat label="Avg Speed" value={formatSpeed(racePlan.averageSpeedMps)} />
-              <Stat label="Avg Power" value={formatWatts(racePlan.solvedPowerW ?? racePlan.averagePowerW)} />
-              <Stat label="NP" value={formatWatts(getRacePlanNormalizedPower(racePlan))} />
-              <Stat label="CdA Scale" value={`${(racePlan.cdaScale * 100).toFixed(1)}%`} />
-              <Stat label="Bike" value={racePlan.bikeName} />
+              <Stat label="Radzeit" value={formatTime(racePlan.totalTimeSec)} />
+              <Stat label="Distanz" value={formatDistance(racePlan.distanceM)} />
+              <Stat label="Ø Tempo" value={formatSpeed(racePlan.averageSpeedMps)} />
+              <Stat label="Ø Leistung" value={formatWatts(racePlan.solvedPowerW ?? racePlan.averagePowerW)} />
+              <Stat label="Normalized Power" value={formatWatts(getRacePlanNormalizedPower(racePlan))} />
+              <Stat label="CdA-Skalierung" value={`${(racePlan.cdaScale * 100).toFixed(1)}%`} />
+              <Stat label="Rad" value={racePlan.bikeName} />
             </div>
           </details>
 
           <details className="race-accordion">
-            <summary>Race Intervals</summary>
+            <summary>Race-Intervalle</summary>
             <SavedSegmentTable racePlan={racePlan} />
           </details>
 
           <details className="race-accordion">
-            <summary>Category Climbs <span>NEW</span></summary>
+            <summary>Kategorisierte Anstiege <span>NEU</span></summary>
             <ClimbTable racePlan={racePlan} />
           </details>
         </section>
@@ -1458,10 +1665,10 @@ function AccountRail({
 }) {
   const items = [
     { label: "Dashboard", icon: <LayoutDashboard size={16} />, view: "simulator" as ActiveView },
-    { label: "Profile", icon: <User size={16} />, view: "profile" as ActiveView },
-    { label: "Bikes", icon: <Bike size={16} />, view: "bike" as ActiveView },
-    { label: "Courses", icon: <Map size={16} />, view: "courses" as ActiveView },
-    { label: "Race Plans", icon: <Target size={16} />, view: "racePlans" as ActiveView }
+    { label: "Profil", icon: <User size={16} />, view: "profile" as ActiveView },
+    { label: "Räder", icon: <Bike size={16} />, view: "bike" as ActiveView },
+    { label: "Kurse", icon: <Map size={16} />, view: "courses" as ActiveView },
+    { label: "Race-Pläne", icon: <Target size={16} />, view: "racePlans" as ActiveView }
   ];
 
   return (
@@ -1485,16 +1692,22 @@ function AccountRail({
 
 function TextField({
   label,
+  help,
   value,
   onChange
 }: {
   label: string;
+  help?: string;
   value: string;
   onChange: (value: string) => void;
 }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <label className="form-field">
-      <span>{label}</span>
+      <span className="field-label-text">
+        {label}
+        {helpText && <HelpTip text={helpText} />}
+      </span>
       <input type="text" value={value} onChange={(event) => onChange(event.target.value)} />
     </label>
   );
@@ -1502,24 +1715,32 @@ function TextField({
 
 function SelectField({
   label,
+  help,
   value,
   options,
   onChange,
   compact = false
 }: {
   label: string;
+  help?: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
   compact?: boolean;
 }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <label className={`form-field ${compact ? "compact" : ""}`}>
-      {label && <span>{label}</span>}
+      {label && (
+        <span className="field-label-text">
+          {label}
+          {helpText && <HelpTip text={helpText} />}
+        </span>
+      )}
       <select value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {displayOptionLabel(option)}
           </option>
         ))}
       </select>
@@ -1529,18 +1750,24 @@ function SelectField({
 
 function ChoiceGroup({
   label,
+  help,
   options,
   value,
   onChange
 }: {
   label: string;
+  help?: string;
   options: Array<{ value: string; label: string }>;
   value: string;
   onChange: (value: string) => void;
 }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <div className="choice-field">
-      <span>{label}</span>
+      <span className="field-label-text">
+        {label}
+        {helpText && <HelpTip text={helpText} />}
+      </span>
       <div className="choice-group">
         {options.map((option) => (
           <button key={option.value} type="button" className={value === option.value ? "active" : ""} onClick={() => onChange(option.value)}>
@@ -1588,14 +1815,20 @@ function CdaYawTable({
 
   return (
     <div className="cda-table">
-      <h4>{title}</h4>
+      <h4>
+        {title}
+        <HelpTip text={title.includes("Race") ? "CdA-Tabelle fuer die schnelle Rennposition. Die Simulation interpoliert zwischen diesen Yaw-Winkeln." : "CdA-Tabelle fuer die langsamere Kletterposition. Sie wird bei steilen, langsameren Segmenten genutzt."} />
+      </h4>
       <div className="cda-header">
-        <span>Yaw Angle</span>
+        <span>
+          Yaw-Winkel
+          <HelpTip text={getLabelHelp("Yaw-Winkel") ?? ""} />
+        </span>
         <span>CdA</span>
       </div>
       {yawAngles.map((yaw) => (
         <label className="cda-row" key={yaw}>
-          <span>{yaw} deg</span>
+          <span>{yaw}°</span>
           <EditableNumberInput value={values[yaw] ?? 0} min={0.18} max={0.6} step={0.0001} onChange={(value) => onChange(yaw, value)} />
         </label>
       ))}
@@ -1622,12 +1855,13 @@ function NumberField({
   step: number;
   onChange: (value: number) => void;
 }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
     <label className="number-field">
       <span className="field-label-row">
         <span className="field-label-text">
           {label}
-          {help && <HelpTip text={help} />}
+          {helpText && <HelpTip text={helpText} />}
         </span>
       </span>
       <div className="input-wrap">
@@ -1714,6 +1948,8 @@ function RangeField({
   max,
   step,
   unit,
+  tone,
+  valueHint,
   onChange
 }: {
   label: string;
@@ -1723,17 +1959,21 @@ function RangeField({
   max: number;
   step: number;
   unit: string;
+  tone?: PacingRiskLevel | "warning" | "danger";
+  valueHint?: string;
   onChange: (value: number) => void;
 }) {
+  const helpText = help ?? getLabelHelp(label);
   return (
-    <label className="range-field">
+    <label className={`range-field ${tone ?? ""}`}>
       <span className="field-label-row">
         <span className="field-label-text">
           {label}
-          {help && <HelpTip text={help} />}
+          {helpText && <HelpTip text={helpText} />}
         </span>
         <strong>
           {value.toFixed(step < 1 ? 2 : 0)} {unit}
+          {valueHint && <small>{valueHint}</small>}
         </strong>
       </span>
       <input type="range" value={value} min={min} max={max} step={step} onChange={(event) => onChange(Number(event.target.value))} />
@@ -1896,7 +2136,7 @@ const RaceAnalysisChart = memo(function RaceAnalysisChart({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Race analysis chart"
+        aria-label="Race-Analyse"
         onPointerDown={handlePointer}
         onPointerMove={(event) => {
           if (event.buttons === 1) {
@@ -1917,9 +2157,9 @@ const RaceAnalysisChart = memo(function RaceAnalysisChart({
         <span>{formatSpeed(markerSegment.speedMps)}</span>
       </div>
       <div className="chart-legend">
-        <span className="power">Power</span>
-        <span className="speed">Speed</span>
-        <span className="elevation">Elevation</span>
+        <span className="power">Leistung</span>
+        <span className="speed">Tempo</span>
+        <span className="elevation">Höhe</span>
       </div>
     </div>
   );
@@ -2050,7 +2290,7 @@ const RouteMap = memo(function RouteMap({
       <div className="map-controls">
         <button type="button" onClick={zoomIn}>+</button>
         <button type="button" onClick={zoomOut}>-</button>
-        <button className="fit-button" type="button" onClick={resetMapView}>Fit</button>
+        <button className="fit-button" type="button" onClick={resetMapView}>Alles</button>
       </div>
       <div className="osm-tiles">
         {mapData.tiles.map((tile) => (
@@ -2092,7 +2332,7 @@ const SegmentTable = memo(function SegmentTable({ result, ftpW }: { result: Simu
   return (
     <>
       {result.segments.length > visibleSegments.length && (
-        <p className="table-note">Showing first {visibleSegments.length} of {result.segments.length} segments.</p>
+        <p className="table-note">Zeige die ersten {visibleSegments.length} von {result.segments.length} Segmenten.</p>
       )}
       <div className="table-wrap">
         <table>
@@ -2102,7 +2342,7 @@ const SegmentTable = memo(function SegmentTable({ result, ftpW }: { result: Simu
               <th>Grad</th>
               <th>W</th>
               <th>% FTP</th>
-              <th>Speed</th>
+              <th>Tempo</th>
               <th>Zeit</th>
               <th>Yaw</th>
               <th>Wind</th>
@@ -2118,7 +2358,7 @@ const SegmentTable = memo(function SegmentTable({ result, ftpW }: { result: Simu
                 <td>{formatPercent(segment.powerW / ftpW)}</td>
                 <td>{formatSpeed(segment.speedMps)}</td>
                 <td>{formatTime(segment.timeSec)}</td>
-                <td>{segment.yawDeg.toFixed(0)} deg</td>
+                <td>{segment.yawDeg.toFixed(0)}°</td>
                 <td>{(segment.headwindMps * 3.6).toFixed(0)} km/h</td>
                 <td>{segment.position === "race" ? "Aero" : "Climb"}</td>
               </tr>
@@ -2135,7 +2375,7 @@ const SavedSegmentTable = memo(function SavedSegmentTable({ racePlan }: { racePl
   return (
     <>
       {racePlan.segments.length > visibleSegments.length && (
-        <p className="table-note">Showing first {visibleSegments.length} of {racePlan.segments.length} segments.</p>
+        <p className="table-note">Zeige die ersten {visibleSegments.length} von {racePlan.segments.length} Segmenten.</p>
       )}
       <div className="table-wrap">
         <table>
@@ -2145,7 +2385,7 @@ const SavedSegmentTable = memo(function SavedSegmentTable({ racePlan }: { racePl
               <th>Grad</th>
               <th>W</th>
               <th>% FTP</th>
-              <th>Speed</th>
+              <th>Tempo</th>
               <th>Zeit</th>
               <th>Yaw</th>
               <th>Wind</th>
@@ -2161,9 +2401,9 @@ const SavedSegmentTable = memo(function SavedSegmentTable({ racePlan }: { racePl
                 <td>{Math.round((segment.powerW / racePlan.ftpW) * 100)}%</td>
                 <td>{formatSpeed(segment.speedMps)}</td>
                 <td>{formatTime(segment.timeSec)}</td>
-                <td>{segment.yawDeg.toFixed(0)} deg</td>
+                <td>{segment.yawDeg.toFixed(0)}°</td>
                 <td>{(segment.headwindMps * 3.6).toFixed(1)} km/h</td>
-                <td>{segment.position}</td>
+                <td>{segment.position === "race" ? "Aero" : "Climb"}</td>
               </tr>
             ))}
           </tbody>
@@ -2176,24 +2416,24 @@ const SavedSegmentTable = memo(function SavedSegmentTable({ racePlan }: { racePl
 const ClimbTable = memo(function ClimbTable({ racePlan }: { racePlan: RacePlan }) {
   const climbs = racePlan.segments.filter((segment) => segment.grade > 0.015);
   if (climbs.length === 0) {
-    return <p className="muted-line">No categorized climbs detected.</p>;
+    return <p className="muted-line">Keine kategorisierten Anstiege erkannt.</p>;
   }
   const visibleClimbs = climbs.slice(0, 400);
 
   return (
     <>
       {climbs.length > visibleClimbs.length && (
-        <p className="table-note">Showing first {visibleClimbs.length} of {climbs.length} climbs.</p>
+        <p className="table-note">Zeige die ersten {visibleClimbs.length} von {climbs.length} Anstiegen.</p>
       )}
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
               <th>km</th>
-              <th>Length</th>
-              <th>Grade</th>
-              <th>Power</th>
-              <th>Time</th>
+              <th>Länge</th>
+              <th>Steigung</th>
+              <th>Leistung</th>
+              <th>Zeit</th>
             </tr>
           </thead>
           <tbody>
@@ -2511,6 +2751,63 @@ function formatDateTime(value: string): string {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(new Date(value));
+}
+
+function calculateBikeStressScore(intensityFactor: number, durationSec: number): number {
+  const hours = clampNumber(durationSec / 3600, 0, 12);
+  const ifValue = clampNumber(intensityFactor, 0, 1.2);
+  return hours * ifValue * ifValue * 100;
+}
+
+function classifyIronmanPacingStress(stressScore: number): {
+  level: PacingRiskLevel;
+  tone?: "warning" | "danger";
+  title: string;
+  detail: string;
+} {
+  if (stressScore < 255) {
+    return {
+      level: "reserve",
+      title: "Du lässt etwas Zeit auf der Strecke liegen",
+      detail: "Sehr konservativer Bike-Split. Das kann sinnvoll sein, wenn Finish, Ernährung oder Lauf im Fokus stehen."
+    };
+  }
+  if (stressScore < 280) {
+    return {
+      level: "safe",
+      title: "Sichere Zone für unsichere Läufer und Einsteiger",
+      detail: "Gute Wahl, wenn der Marathon nach dem Rad noch klar Priorität hat oder die FTP nicht perfekt abgesichert ist."
+    };
+  }
+  if (stressScore < 300) {
+    return {
+      level: "good",
+      title: "Guter Bereich für die meisten Altersklassen-Athleten",
+      detail: "Solide Ironman-Planung bei guter Vorbereitung, stabiler Aeroposition und kontrollierter Ernährung."
+    };
+  }
+  if (stressScore < 320) {
+    return {
+      level: "strong",
+      tone: "warning",
+      title: "Nur für starke Ironman-Läufer",
+      detail: "Ambitioniert. Das kann funktionieren, wenn du lange Radbelastungen sehr gut verträgst und danach noch laufen kannst."
+    };
+  }
+  if (stressScore < 340) {
+    return {
+      level: "runWalk",
+      tone: "danger",
+      title: "Ein paar Meilen laufen, dann wird es kritisch",
+      detail: "Sehr riskant. Die Radzeit sieht schnell aus, aber der Marathon kann dadurch stark einbrechen."
+    };
+  }
+  return {
+    level: "blown",
+    tone: "danger",
+    title: "Du wirst nächstes Jahr wahrscheinlich wieder hier planen",
+    detail: "Extrem aggressiv für Langdistanz. Das ist eher Überzocken als kontrolliertes Ironman-Pacing."
+  };
 }
 
 function deriveBbsBikeCalculatedValues(setup: BikeSetupProfile): BbsBikeCalculatedValues {
