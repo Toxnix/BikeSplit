@@ -100,7 +100,7 @@ const APP_NAME = "Ironman Bike Split Predictor";
 
 type ActiveView = "simulator" | "profile" | "bike" | "courses" | "racePlans" | "raceDetails";
 type ChartAxis = "distance" | "time";
-type DragMethod = "basic" | "fit" | "manual";
+type DragMethod = "basic";
 type PacingRiskLevel = "reserve" | "safe" | "good" | "strong" | "runWalk" | "blown";
 
 interface AthleteProfile {
@@ -481,20 +481,13 @@ export default function App() {
     [activeRacePlanId, racePlans]
   );
   useEffect(() => {
-    if (bikeSetup.dragMethod === "manual" || bikeSetup.dragMethod === "fit") {
-      return;
-    }
-
     const calculated = deriveBbsBikeCalculatedValues(bikeSetup);
-    setBikeSetup((current) =>
-      current.dragMethod === "manual" || current.dragMethod === "fit"
-        ? current
-        : {
-            ...current,
-            cdaRacingByYaw: calculated.cdaRacingByYaw,
-            cdaClimbingByYaw: calculated.cdaClimbingByYaw
-          }
-    );
+    setBikeSetup((current) => ({
+      ...current,
+      dragMethod: "basic",
+      cdaRacingByYaw: calculated.cdaRacingByYaw,
+      cdaClimbingByYaw: calculated.cdaClimbingByYaw
+    }));
     applyBbsCalculatedToProfile(setProfile, calculated);
   }, [
     bikeSetup.bikeType,
@@ -1325,13 +1318,11 @@ function BikeProfileView({
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
-  const activeDragMethod: DragMethod =
-    bikeSetup.dragMethod === "fit" || bikeSetup.dragMethod === "manual" ? bikeSetup.dragMethod : "basic";
-
   function applyCalculatedValues(nextSetup: BikeSetupProfile) {
     const calculated = deriveBbsBikeCalculatedValues(nextSetup);
     setBikeSetup({
       ...nextSetup,
+      dragMethod: "basic",
       cdaRacingByYaw: calculated.cdaRacingByYaw,
       cdaClimbingByYaw: calculated.cdaClimbingByYaw
     });
@@ -1339,12 +1330,7 @@ function BikeProfileView({
   }
 
   function updateBikeSetup<K extends keyof BikeSetupProfile>(key: K, value: BikeSetupProfile[K]) {
-    const nextSetup = { ...bikeSetup, [key]: value };
-    if (nextSetup.dragMethod !== "fit" && nextSetup.dragMethod !== "manual") {
-      applyCalculatedValues(nextSetup);
-      return;
-    }
-    setBikeSetup(nextSetup);
+    applyCalculatedValues({ ...bikeSetup, dragMethod: "basic", [key]: value });
   }
 
   return (
@@ -1384,29 +1370,11 @@ function BikeProfileView({
           </FormSection>
 
           <FormSection title="Aero-Berechnung">
-            <div className="drag-methods">
-              <DragMethodButton title="Setup-Schätzung" detail="Schätzt CdA aus Rad, Laufrädern, Reifen, Helm und Position." value="basic" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
-              <DragMethodButton title="Bike-Fit-Maße" detail="Nutzt Maßangaben und Setup-Auswahl für eine engere CdA-Schätzung." value="fit" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
-              <DragMethodButton title="Manuelle Eingabe" detail="Yaw-abhängige CdA-Werte direkt eintragen und das Setup-Modell übersteuern." value="manual" selected={activeDragMethod} onChange={(value) => updateBikeSetup("dragMethod", value)} />
-            </div>
+            <p className="calculated-note setup-estimate-note">
+              Die CdA wird ausschließlich aus Radtyp, Komponenten, Laufrädern, Reifen, Helm und Fahrposition geschätzt.
+              Die Yaw-Tabellen unten sind die daraus berechneten Werte und werden in der Simulation segmentweise interpoliert.
+            </p>
           </FormSection>
-
-          {activeDragMethod === "fit" && (
-            <FormSection title="Bike-Fit-Maße">
-              <div className="bike-grid five">
-                <TextField label="Schulterbreite" value={bikeSetup.shoulderWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "shoulderWidth", value)} />
-                <TextField label="Hüftbreite" value={bikeSetup.hipWidth} onChange={(value) => setBikeSetupField(setBikeSetup, "hipWidth", value)} />
-                <TextField label="Handbreite Race" value={bikeSetup.handleWidthRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthRacing", value)} />
-                <TextField label="Handbreite Climb" value={bikeSetup.handleWidthClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "handleWidthClimbing", value)} />
-                <TextField label="Hüfte-Schulter" value={bikeSetup.hipToShoulder} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToShoulder", value)} />
-                <TextField label="Hüfte-Kopf" value={bikeSetup.hipToHead} onChange={(value) => setBikeSetupField(setBikeSetup, "hipToHead", value)} />
-                <TextField label="Sattel-Lenker-Drop" value={bikeSetup.seatToHandlebarDrop} onChange={(value) => setBikeSetupField(setBikeSetup, "seatToHandlebarDrop", value)} />
-                <TextField label="Torso-Winkel Race" value={bikeSetup.torsoAngleRacing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleRacing", value)} />
-                <TextField label="Torso-Winkel Climb" value={bikeSetup.torsoAngleClimbing} onChange={(value) => setBikeSetupField(setBikeSetup, "torsoAngleClimbing", value)} />
-                <TextField label="Sitzrohrwinkel" value={bikeSetup.seatTubeAngle} onChange={(value) => setBikeSetupField(setBikeSetup, "seatTubeAngle", value)} />
-              </div>
-            </FormSection>
-          )}
 
           <FormSection title="Berechnete Werte">
             <div className="calculated-bike-grid">
@@ -1777,28 +1745,6 @@ function ChoiceGroup({
         ))}
       </div>
     </div>
-  );
-}
-
-function DragMethodButton({
-  title,
-  detail,
-  value,
-  selected,
-  onChange
-}: {
-  title: string;
-  detail: string;
-  value: DragMethod;
-  selected: DragMethod;
-  onChange: (value: DragMethod) => void;
-}) {
-  return (
-    <button className={`drag-method ${selected === value ? "active" : ""}`} type="button" onClick={() => onChange(value)}>
-      <span className="radio-dot" />
-      <strong>{title}</strong>
-      <em>{detail}</em>
-    </button>
   );
 }
 
