@@ -97,8 +97,16 @@ const pacingFieldHelp = {
 
 const EQUIPMENT_CDA_M2 = 0.06;
 const APP_NAME = "Ironman Bike Split Predictor";
+const BUILTIN_COURSES = [
+  {
+    id: "ironman-frankfurt-2026",
+    name: "IRONMAN Frankfurt 2026",
+    description: "Mitgelieferte GPX-Vorlage aus IMFFM26_Bike.gpx.",
+    url: "/courses/IMFFM26_Bike.gpx"
+  }
+] as const;
 
-type ActiveView = "simulator" | "profile" | "bike" | "courses" | "racePlans" | "raceDetails";
+type ActiveView = "simulator" | "profile" | "bike" | "courses" | "goals" | "racePlans" | "raceDetails";
 type ChartAxis = "distance" | "time";
 type DragMethod = "basic";
 type PacingRiskLevel = "reserve" | "safe" | "good" | "strong" | "runWalk" | "blown";
@@ -188,6 +196,8 @@ interface SavedCourse {
   totalDescentM: number;
   points: RawRoutePoint[];
 }
+
+type BuiltinCourse = (typeof BUILTIN_COURSES)[number];
 
 interface SimulationRun {
   route: PreparedRoute;
@@ -417,7 +427,7 @@ export default function App() {
   const [activeView, setActiveView] = useStoredState<ActiveView>("aerosplit.activeView", "simulator");
   const dashboardUnlocked = racePlans.length > 0;
   const requestedView: ActiveView =
-    activeView === "profile" || activeView === "bike" || activeView === "courses" || activeView === "racePlans" || activeView === "raceDetails" || activeView === "simulator"
+    activeView === "profile" || activeView === "bike" || activeView === "courses" || activeView === "goals" || activeView === "racePlans" || activeView === "raceDetails" || activeView === "simulator"
       ? activeView
       : "profile";
   const currentView: ActiveView =
@@ -608,6 +618,28 @@ export default function App() {
     setActiveView("courses");
   };
 
+  const openBuiltinCourse = async (id: string) => {
+    const course = BUILTIN_COURSES.find((item) => item.id === id);
+    if (!course) {
+      return;
+    }
+
+    try {
+      const response = await fetch(course.url);
+      if (!response.ok) {
+        throw new Error("Die mitgelieferte GPX konnte nicht geladen werden.");
+      }
+      const text = await response.text();
+      const parsedRoute = parseGpx(text, course.name);
+      setRoute({ ...parsedRoute, name: course.name });
+      setSimulationRun(null);
+      setImportError("");
+      setActiveView("courses");
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : "Die mitgelieferte GPX konnte nicht geladen werden.");
+    }
+  };
+
   const deleteSavedCourse = (id: string) => {
     setSavedCourses((current) => current.filter((course) => course.id !== id));
   };
@@ -637,6 +669,10 @@ export default function App() {
             <Map size={17} />
             Strecken
           </button>
+          <button className={currentView === "goals" ? "active" : ""} type="button" onClick={() => setActiveView("goals")}>
+            <Target size={17} />
+            Ziele
+          </button>
           <button className={currentView === "racePlans" || currentView === "raceDetails" ? "active" : ""} type="button" onClick={() => setActiveView("racePlans")}>
             <Target size={17} />
             Race-Pläne
@@ -655,7 +691,8 @@ export default function App() {
         <SetupFlow
           activeView={currentView}
           routeReady={Boolean(route || savedCourses.length)}
-          racePlanReady={dashboardUnlocked}
+          goalReady={Boolean(route)}
+          racePlanReady={Boolean(result || dashboardUnlocked)}
           dashboardUnlocked={dashboardUnlocked}
           setActiveView={setActiveView}
         />
@@ -669,8 +706,6 @@ export default function App() {
           setAthleteProfile={setAthleteProfile}
           profile={profile}
           setProfile={setProfile}
-          riderCdaScale={riderCdaScale}
-          suggestedRiderCdaScale={suggestedRiderCdaScale}
           activeView={currentView}
           setActiveView={setActiveView}
         />
@@ -685,14 +720,42 @@ export default function App() {
         />
       ) : currentView === "courses" ? (
         <CoursesView
+          builtinCourses={BUILTIN_COURSES}
           savedCourses={savedCourses}
           currentRoute={route}
-          result={result}
-          hasPendingSimulation={hasPendingSimulation}
           onSaveCurrent={saveCurrentCourse}
           onOpenCourse={openSavedCourse}
+          onOpenBuiltinCourse={openBuiltinCourse}
           onDeleteCourse={deleteSavedCourse}
           onImportGpx={() => fileInputRef.current?.click()}
+          activeView={currentView}
+          setActiveView={setActiveView}
+        />
+      ) : currentView === "goals" ? (
+        <GoalsView
+          currentRoute={route}
+          result={result}
+          athleteProfile={athleteProfile}
+          setAthleteProfile={setAthleteProfile}
+          profile={profile}
+          setProfile={setProfile}
+          riderCdaScale={riderCdaScale}
+          suggestedRiderCdaScale={suggestedRiderCdaScale}
+          weather={weather}
+          setWeather={setWeather}
+          mode={mode}
+          setMode={setMode}
+          goalHours={goalHours}
+          setGoalHours={setGoalHours}
+          goalMinutes={goalMinutes}
+          setGoalMinutes={setGoalMinutes}
+          targetPowerPctOfFtp={targetPowerPctOfFtp}
+          pacingStressScore={pacingStressScore}
+          pacingMatrixDurationSec={pacingMatrixDurationSec}
+          pacingRisk={pacingRisk}
+          maxSurgePct={maxSurgePct}
+          effectivePowerCeiling={effectivePowerCeiling}
+          hasPendingSimulation={hasPendingSimulation}
           onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
@@ -978,12 +1041,14 @@ async function runSimulationOnServer(
 function SetupFlow({
   activeView,
   routeReady,
+  goalReady,
   racePlanReady,
   dashboardUnlocked,
   setActiveView
 }: {
   activeView: ActiveView;
   routeReady: boolean;
+  goalReady: boolean;
   racePlanReady: boolean;
   dashboardUnlocked: boolean;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
@@ -992,6 +1057,7 @@ function SetupFlow({
     { label: "Profil", view: "profile" as ActiveView, ready: true, icon: <User size={15} /> },
     { label: "Räder", view: "bike" as ActiveView, ready: true, icon: <Bike size={15} /> },
     { label: "Strecken", view: "courses" as ActiveView, ready: routeReady, icon: <Map size={15} /> },
+    { label: "Ziele", view: "goals" as ActiveView, ready: goalReady, icon: <Target size={15} /> },
     { label: "Race-Pläne", view: "racePlans" as ActiveView, ready: racePlanReady, icon: <Target size={15} /> }
   ];
   const normalizedActiveView = activeView === "raceDetails" ? "racePlans" : activeView;
@@ -1017,13 +1083,13 @@ function SetupFlow({
             type="button"
             onClick={() => setActiveView("simulator")}
           >
-            <span className="setup-step-index">5</span>
+            <span className="setup-step-index">6</span>
             <LayoutDashboard size={15} />
             <span>Dashboard</span>
           </button>
         ) : (
           <div className="setup-flow-locked">
-            <span className="setup-step-index">5</span>
+            <span className="setup-step-index">6</span>
             <LayoutDashboard size={15} />
             <span>Dashboard nach gespeichertem Race-Plan</span>
           </div>
@@ -1245,27 +1311,25 @@ function CourseEvaluation({
 }
 
 function CoursesView({
+  builtinCourses,
   savedCourses,
   currentRoute,
-  result,
-  hasPendingSimulation,
   onSaveCurrent,
   onOpenCourse,
+  onOpenBuiltinCourse,
   onDeleteCourse,
   onImportGpx,
-  onRunSimulation,
   activeView,
   setActiveView
 }: {
+  builtinCourses: readonly BuiltinCourse[];
   savedCourses: SavedCourse[];
   currentRoute: PreparedRoute | null;
-  result: SimulationResult | null;
-  hasPendingSimulation: boolean;
   onSaveCurrent: () => void;
   onOpenCourse: (id: string) => void;
+  onOpenBuiltinCourse: (id: string) => void;
   onDeleteCourse: (id: string) => void;
   onImportGpx: () => void;
-  onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1288,15 +1352,38 @@ function CoursesView({
             </button>
           </div>
 
+          <FormSection title="Strecken-Vorlagen">
+            <div className="builtin-course-list">
+              {builtinCourses.map((course) => (
+                <article className="builtin-course-card" key={course.id}>
+                  <div>
+                    <h3>{course.name}</h3>
+                    <p>{course.description}</p>
+                  </div>
+                  <button className="button secondary" type="button" onClick={() => onOpenBuiltinCourse(course.id)}>
+                    <Map size={17} />
+                    Strecke laden
+                  </button>
+                </article>
+              ))}
+            </div>
+          </FormSection>
+
           {currentRoute && (
             <FormSection title="Aktuelle Strecke">
-              <CourseEvaluation
-                route={currentRoute}
-                result={result}
-                hasPendingSimulation={hasPendingSimulation}
-                onImportGpx={onImportGpx}
-                onRunSimulation={onRunSimulation}
-              />
+              <div className="course-title-row compact-course-row">
+                <strong>{currentRoute.name}</strong>
+                <div className="course-title-actions">
+                  <button className="button secondary" type="button" onClick={() => setActiveView("goals")}>
+                    <Target size={17} />
+                    Weiter zu Ziele
+                  </button>
+                  <button className="button ghost" type="button" onClick={onImportGpx}>
+                    <Upload size={17} />
+                    GPX ersetzen
+                  </button>
+                </div>
+              </div>
               <RouteMap route={currentRoute} />
             </FormSection>
           )}
@@ -1337,13 +1424,337 @@ function CoursesView({
   );
 }
 
-function ProfileView({
+function GoalsView({
+  currentRoute,
+  result,
   athleteProfile,
   setAthleteProfile,
   profile,
   setProfile,
   riderCdaScale,
   suggestedRiderCdaScale,
+  weather,
+  setWeather,
+  mode,
+  setMode,
+  goalHours,
+  setGoalHours,
+  goalMinutes,
+  setGoalMinutes,
+  targetPowerPctOfFtp,
+  pacingStressScore,
+  pacingMatrixDurationSec,
+  pacingRisk,
+  maxSurgePct,
+  effectivePowerCeiling,
+  hasPendingSimulation,
+  onRunSimulation,
+  activeView,
+  setActiveView
+}: {
+  currentRoute: PreparedRoute | null;
+  result: SimulationResult | null;
+  athleteProfile: AthleteProfile;
+  setAthleteProfile: Dispatch<SetStateAction<AthleteProfile>>;
+  profile: RiderBikeProfile;
+  setProfile: Dispatch<SetStateAction<RiderBikeProfile>>;
+  riderCdaScale: number;
+  suggestedRiderCdaScale: number;
+  weather: WeatherProfile;
+  setWeather: Dispatch<SetStateAction<WeatherProfile>>;
+  mode: SimulationMode;
+  setMode: Dispatch<SetStateAction<SimulationMode>>;
+  goalHours: number;
+  setGoalHours: Dispatch<SetStateAction<number>>;
+  goalMinutes: number;
+  setGoalMinutes: Dispatch<SetStateAction<number>>;
+  targetPowerPctOfFtp: number;
+  pacingStressScore: number;
+  pacingMatrixDurationSec: number;
+  pacingRisk: ReturnType<typeof classifyIronmanPacingStress>;
+  maxSurgePct: number;
+  effectivePowerCeiling: number;
+  hasPendingSimulation: boolean;
+  onRunSimulation: () => void;
+  activeView: ActiveView;
+  setActiveView: Dispatch<SetStateAction<ActiveView>>;
+}) {
+  return (
+    <main className="profile-workspace">
+      <section className="profile-main">
+        <div className="page-strip">
+          <h2>Ziele</h2>
+        </div>
+
+        <section className="profile-form-surface">
+          {!currentRoute ? (
+            <section className="empty-route-panel compact-panel">
+              <Map size={32} />
+              <h2>Keine Strecke geladen</h2>
+              <p>Waehle zuerst auf der Strecken-Seite eine GPX oder eine Vorlage aus.</p>
+              <button className="button secondary" type="button" onClick={() => setActiveView("courses")}>
+                <Map size={17} />
+                Zu Strecken
+              </button>
+            </section>
+          ) : (
+            <>
+              <div className="race-plan-actions">
+                <button className="button secondary" type="button" onClick={onRunSimulation}>
+                  <Play size={17} />
+                  {result ? "Neu berechnen" : "Prediction berechnen"}
+                </button>
+                <button className="button ghost" type="button" onClick={() => setActiveView("courses")}>
+                  <Map size={17} />
+                  Strecke wechseln
+                </button>
+                <button className="button ghost" type="button" onClick={() => setActiveView("racePlans")} disabled={!result}>
+                  <Save size={17} />
+                  Zu Race-Pläne
+                </button>
+                {hasPendingSimulation && result && <span className="pending-pill">Änderungen nicht berechnet</span>}
+              </div>
+
+              <FormSection title="Aktuelle Strecke">
+                <div className="stat-grid two">
+                  <Stat label="Name" value={currentRoute.name} />
+                  <Stat label="Distanz" value={formatDistance(currentRoute.totalDistanceM)} />
+                  <Stat label="Anstieg" value={formatMeters(currentRoute.totalAscentM)} />
+                  <Stat label="Abfahrt" value={formatMeters(currentRoute.totalDescentM)} />
+                  <Stat label="Radzeit" value={result ? formatTime(result.summary.totalTimeSec) : "offen"} />
+                  <Stat label="Normalized Power" value={result ? formatWatts(result.summary.normalizedPowerW) : "offen"} />
+                </div>
+              </FormSection>
+
+              <CdaScaleSettings
+                athleteProfile={athleteProfile}
+                setAthleteProfile={setAthleteProfile}
+                riderCdaScale={riderCdaScale}
+                suggestedRiderCdaScale={suggestedRiderCdaScale}
+              />
+
+              <FormSection title="Prediction-Modell">
+                <PredictionSettings
+                  profile={profile}
+                  setProfile={setProfile}
+                  weather={weather}
+                  setWeather={setWeather}
+                  mode={mode}
+                  setMode={setMode}
+                  goalHours={goalHours}
+                  setGoalHours={setGoalHours}
+                  goalMinutes={goalMinutes}
+                  setGoalMinutes={setGoalMinutes}
+                  targetPowerPctOfFtp={targetPowerPctOfFtp}
+                  pacingStressScore={pacingStressScore}
+                  pacingMatrixDurationSec={pacingMatrixDurationSec}
+                  pacingRisk={pacingRisk}
+                  maxSurgePct={maxSurgePct}
+                  effectivePowerCeiling={effectivePowerCeiling}
+                />
+              </FormSection>
+            </>
+          )}
+        </section>
+      </section>
+
+      <AccountRail activeView={activeView} setActiveView={setActiveView} />
+    </main>
+  );
+}
+
+function PredictionSettings({
+  profile,
+  setProfile,
+  weather,
+  setWeather,
+  mode,
+  setMode,
+  goalHours,
+  setGoalHours,
+  goalMinutes,
+  setGoalMinutes,
+  targetPowerPctOfFtp,
+  pacingStressScore,
+  pacingMatrixDurationSec,
+  pacingRisk,
+  maxSurgePct,
+  effectivePowerCeiling
+}: {
+  profile: RiderBikeProfile;
+  setProfile: Dispatch<SetStateAction<RiderBikeProfile>>;
+  weather: WeatherProfile;
+  setWeather: Dispatch<SetStateAction<WeatherProfile>>;
+  mode: SimulationMode;
+  setMode: Dispatch<SetStateAction<SimulationMode>>;
+  goalHours: number;
+  setGoalHours: Dispatch<SetStateAction<number>>;
+  goalMinutes: number;
+  setGoalMinutes: Dispatch<SetStateAction<number>>;
+  targetPowerPctOfFtp: number;
+  pacingStressScore: number;
+  pacingMatrixDurationSec: number;
+  pacingRisk: ReturnType<typeof classifyIronmanPacingStress>;
+  maxSurgePct: number;
+  effectivePowerCeiling: number;
+}) {
+  return (
+    <div className="prediction-settings-grid">
+      <section className="prediction-settings-card">
+        <h4>Modell</h4>
+        <div className="segmented" role="tablist" aria-label="Pacing-Modus">
+          {(Object.keys(modeLabels) as SimulationMode[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={mode === key ? "active" : ""}
+              onClick={() => setMode(key)}
+            >
+              <span>{modeLabels[key]}</span>
+              <HelpTip text={modeHelp[key]} focusable={false} />
+            </button>
+          ))}
+        </div>
+        <RangeField
+          label="Zielpower"
+          help={pacingFieldHelp.targetPower}
+          value={targetPowerPctOfFtp}
+          min={55}
+          max={90}
+          step={1}
+          unit="% FTP"
+          tone={pacingRisk.level}
+          valueHint={`${formatWatts(profile.targetPowerW)}`}
+          onChange={(value) => {
+            const nextTargetPowerW = Math.round((profile.ftpW * value) / 100);
+            setProfile((current) => ({
+              ...current,
+              targetPowerW: nextTargetPowerW,
+              maxPowerW: Math.max(current.maxPowerW, nextTargetPowerW)
+            }));
+          }}
+        />
+        <PacingRiskBox
+          risk={pacingRisk}
+          stressScore={pacingStressScore}
+          durationSec={pacingMatrixDurationSec}
+          intensityPct={targetPowerPctOfFtp}
+        />
+      </section>
+
+      <section className="prediction-settings-card">
+        <h4>Wetter</h4>
+        <div className="field-grid">
+          <NumberField label="Wind" value={weather.windSpeedKph} unit="km/h" min={0} max={55} step={1} onChange={(value) => setWeatherField(setWeather, "windSpeedKph", value)} />
+          <NumberField label="Richtung" value={weather.windDirectionDeg} unit="deg" min={0} max={359} step={5} onChange={(value) => setWeatherField(setWeather, "windDirectionDeg", value)} />
+          <NumberField label="Temp." value={weather.tempC} unit="C" min={-5} max={45} step={1} onChange={(value) => setWeatherField(setWeather, "tempC", value)} />
+          <NumberField label="Druck" value={weather.pressureHpa} unit="hPa" min={900} max={1050} step={1} onChange={(value) => setWeatherField(setWeather, "pressureHpa", value)} />
+          <NumberField label="Feuchte" value={weather.humidityPct} unit="%" min={0} max={100} step={5} onChange={(value) => setWeatherField(setWeather, "humidityPct", value)} />
+        </div>
+      </section>
+
+      {(mode === "goal" || mode === "pacing") && (
+        <section className="prediction-settings-card wide">
+          <h4>{mode === "goal" ? "Zielzeit" : "Terrain-Pacing"}</h4>
+          {mode === "goal" && (
+            <div className="field-grid">
+              <NumberField label="Stunden" help="Zielzeit-Stunden fuer den Zielzeit-Modus. Das Modell sucht die konstante Leistung fuer diese Bike-Split-Zeit." value={goalHours} unit="h" min={3} max={9} step={1} onChange={setGoalHours} />
+              <NumberField label="Minuten" help="Zielzeit-Minuten fuer den Zielzeit-Modus. Zusammen mit Stunden ergibt das die gewuenschte Bike-Split-Zeit." value={goalMinutes} unit="min" min={0} max={59} step={5} onChange={setGoalMinutes} />
+            </div>
+          )}
+          {mode === "pacing" && (
+            <>
+              <RangeField label="Terrain-Faktor" help={pacingFieldHelp.pacingAggression} value={profile.pacingAggression} min={0} max={1} step={0.05} unit="" onChange={(value) => setProfileField(setProfile, "pacingAggression", value)} />
+              <div className="field-grid two-column">
+                <NumberField label="Min W" help={pacingFieldHelp.minPower} value={profile.minPowerW} unit="W" min={40} max={profile.targetPowerW} step={5} onChange={(value) => setProfileField(setProfile, "minPowerW", value)} />
+                <NumberField label="Max W" help={pacingFieldHelp.maxPower} value={profile.maxPowerW} unit="W" min={profile.targetPowerW} max={600} step={5} onChange={(value) => setProfileField(setProfile, "maxPowerW", value)} />
+                <NumberField
+                  label="Max Boost"
+                  help={`Prozentuale Obergrenze ueber Zielpower. Bei ${formatWatts(profile.targetPowerW)} und ${maxSurgePct.toFixed(0)}% waere die Boost-Decke ${formatWatts(profile.targetPowerW * (1 + maxSurgePct / 100))}; mit Max W effektiv ${formatWatts(effectivePowerCeiling)}.`}
+                  value={profile.maxPowerSurgePct}
+                  unit="%"
+                  min={0}
+                  max={50}
+                  step={1}
+                  onChange={(value) => setProfileField(setProfile, "maxPowerSurgePct", value)}
+                />
+                <NumberField label="Kurven-Exit" help={pacingFieldHelp.cornerExit} value={profile.cornerExitBoostPct} unit="%" min={0} max={35} step={1} onChange={(value) => setProfileField(setProfile, "cornerExitBoostPct", value)} />
+                <NumberField label="Exit-Distanz" help={pacingFieldHelp.exitDistance} value={profile.cornerExitDistanceM} unit="m" min={0} max={1000} step={50} onChange={(value) => setProfileField(setProfile, "cornerExitDistanceM", value)} />
+                <NumberField label="Kurvenbremse" help={pacingFieldHelp.cornerBrake} value={profile.cornerBrakeSensitivity} unit="" min={0} max={1} step={0.05} onChange={(value) => setProfileField(setProfile, "cornerBrakeSensitivity", value)} />
+                <NumberField label="Min Kurve" help={pacingFieldHelp.minCorner} value={profile.minCornerSpeedKph} unit="km/h" min={8} max={55} step={1} onChange={(value) => setProfileField(setProfile, "minCornerSpeedKph", value)} />
+                <NumberField label="Climb-Wechsel" help={pacingFieldHelp.climbSwitch} value={profile.positionSwitchKph} unit="km/h" min={12} max={35} step={1} onChange={(value) => setProfileField(setProfile, "positionSwitchKph", value)} />
+              </div>
+            </>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
+
+function CdaScaleSettings({
+  athleteProfile,
+  setAthleteProfile,
+  riderCdaScale,
+  suggestedRiderCdaScale
+}: {
+  athleteProfile: AthleteProfile;
+  setAthleteProfile: Dispatch<SetStateAction<AthleteProfile>>;
+  riderCdaScale: number;
+  suggestedRiderCdaScale: number;
+}) {
+  return (
+    <FormSection title="Prediction-CdA">
+      <div className="calculated-row">
+        <p className="calculated-note">
+          Groesse und Gewicht können auch zur CdA-Skalierung genutzt werden. Für große und kleinere Personen wichtig.
+          Ohne diese Skalierung hängt die Aerodynamik nicht von deiner Körpergröße ab; Gewicht wirkt weiterhin über Masse,
+          Rollwiderstand und Steigungen. Der Formelwert ist ein Vorschlag; du kannst den Prozentwert manuell korrigieren.
+        </p>
+        <div className="calculated-note cda-scale-note">
+          Prediction-CdA-Skalierung: {(riderCdaScale * 100).toFixed(1)}% der Referenz
+          <br />
+          Formelvorschlag: {(suggestedRiderCdaScale * 100).toFixed(1)}%
+        </div>
+        <label className="toggle-line profile-toggle">
+          <input
+            type="checkbox"
+            checked={athleteProfile.scaleCdaByRiderSize !== false}
+            onChange={(event) => setAthleteField(setAthleteProfile, "scaleCdaByRiderSize", event.target.checked)}
+          />
+          <span>Fahrergröße und Gewicht in dieser Prediction auf CdA anwenden</span>
+        </label>
+        {athleteProfile.scaleCdaByRiderSize !== false && (
+          <div className="cda-scale-controls profile-cda-scale-controls">
+            <NumberField
+              label="CdA Scale"
+              help="Dieser Prozentwert wird in der Prediction auf den fahrerabhaengigen Anteil der CdA angewendet. Der Formelwert ist nur der Vorschlag; hier kannst du ihn manuell korrigieren."
+              value={riderCdaScale * 100}
+              unit="%"
+              min={70}
+              max={140}
+              step={0.1}
+              onChange={(value) => setAthleteField(setAthleteProfile, "cdaScalePct", value)}
+            />
+            <button
+              className="button ghost cda-scale-reset"
+              type="button"
+              onClick={() => setAthleteField(setAthleteProfile, "cdaScalePct", round1(suggestedRiderCdaScale * 100))}
+            >
+              Formel {round1(suggestedRiderCdaScale * 100).toFixed(1)}%
+            </button>
+          </div>
+        )}
+      </div>
+    </FormSection>
+  );
+}
+
+function ProfileView({
+  athleteProfile,
+  setAthleteProfile,
+  profile,
+  setProfile,
   activeView,
   setActiveView
 }: {
@@ -1351,8 +1762,6 @@ function ProfileView({
   setAthleteProfile: Dispatch<SetStateAction<AthleteProfile>>;
   profile: RiderBikeProfile;
   setProfile: Dispatch<SetStateAction<RiderBikeProfile>>;
-  riderCdaScale: number;
-  suggestedRiderCdaScale: number;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1369,50 +1778,6 @@ function ProfileView({
               <NumberField label="Groesse" value={athleteProfile.heightCm} unit="cm" min={120} max={230} step={1} onChange={(value) => setAthleteField(setAthleteProfile, "heightCm", value)} />
               <NumberField label="Gewicht" value={profile.riderWeightKg} unit="kg" min={45} max={130} step={0.5} onChange={(value) => setProfileField(setProfile, "riderWeightKg", value)} />
               <NumberField label="FTP" value={profile.ftpW} unit="W" min={120} max={520} step={5} onChange={(value) => setProfileField(setProfile, "ftpW", value)} />
-            </div>
-          </FormSection>
-
-          <FormSection title="Prediction-CdA">
-            <div className="calculated-row">
-              <p className="calculated-note">
-                Groesse und Gewicht könnne auch zur CdA-Skalierung genutzt werden. Für große und kleiner Personen wichig.
-                Ohne diese Skalierung hängt die Aerodynamik nicht von deiner Körpergröße ab; Gewicht wirkt weiterhin über Masse,
-                Rollwiderstand und Steigungen. Der Formelwert ist ein Vorschlag; du kannst den Prozentwert manuell korrigieren.
-              </p>
-              <div className="calculated-note cda-scale-note">
-                Prediction-CdA-Skalierung: {(riderCdaScale * 100).toFixed(1)}% der Referenz
-                <br />
-                Formelvorschlag: {(suggestedRiderCdaScale * 100).toFixed(1)}%
-              </div>
-              <label className="toggle-line profile-toggle">
-                <input
-                  type="checkbox"
-                  checked={athleteProfile.scaleCdaByRiderSize !== false}
-                  onChange={(event) => setAthleteField(setAthleteProfile, "scaleCdaByRiderSize", event.target.checked)}
-                />
-                <span>Fahrergröße und Gewicht erst in der Prediction auf CdA anwenden</span>
-              </label>
-              {athleteProfile.scaleCdaByRiderSize !== false && (
-                <div className="cda-scale-controls profile-cda-scale-controls">
-                  <NumberField
-                    label="CdA Scale"
-                    help="Dieser Prozentwert wird in der Prediction auf den fahrerabhaengigen Anteil der CdA angewendet. Der Formelwert ist nur der Vorschlag; hier kannst du ihn manuell korrigieren."
-                    value={riderCdaScale * 100}
-                    unit="%"
-                    min={70}
-                    max={140}
-                    step={0.1}
-                    onChange={(value) => setAthleteField(setAthleteProfile, "cdaScalePct", value)}
-                  />
-                  <button
-                    className="button ghost cda-scale-reset"
-                    type="button"
-                    onClick={() => setAthleteField(setAthleteProfile, "cdaScalePct", round1(suggestedRiderCdaScale * 100))}
-                  >
-                    Formel {round1(suggestedRiderCdaScale * 100).toFixed(1)}%
-                  </button>
-                </div>
-              )}
             </div>
           </FormSection>
 
@@ -1581,9 +1946,9 @@ function RacePlansView({
               <Save size={17} />
               Aktuelle Prediction speichern
             </button>
-            <button className="button ghost" type="button" onClick={() => setActiveView("courses")}>
-              <Map size={17} />
-              Zu Strecken
+            <button className="button ghost" type="button" onClick={() => setActiveView("goals")}>
+              <Target size={17} />
+              Zu Ziele
             </button>
           </div>
 
@@ -1747,6 +2112,7 @@ function AccountRail({
     { label: "Profil", icon: <User size={16} />, view: "profile" as ActiveView },
     { label: "Räder", icon: <Bike size={16} />, view: "bike" as ActiveView },
     { label: "Strecken", icon: <Map size={16} />, view: "courses" as ActiveView },
+    { label: "Ziele", icon: <Target size={16} />, view: "goals" as ActiveView },
     { label: "Race-Pläne", icon: <Target size={16} />, view: "racePlans" as ActiveView }
   ];
 
