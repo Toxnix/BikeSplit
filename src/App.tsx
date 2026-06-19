@@ -669,13 +669,8 @@ export default function App() {
           setAthleteProfile={setAthleteProfile}
           profile={profile}
           setProfile={setProfile}
-          route={route}
-          result={result}
           riderCdaScale={riderCdaScale}
           suggestedRiderCdaScale={suggestedRiderCdaScale}
-          hasPendingSimulation={hasPendingSimulation}
-          importError={importError}
-          onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
         />
@@ -685,11 +680,6 @@ export default function App() {
           setBikeSetup={setBikeSetup}
           profile={profile}
           setProfile={setProfile}
-          route={route}
-          result={result}
-          hasPendingSimulation={hasPendingSimulation}
-          importError={importError}
-          onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
         />
@@ -1352,13 +1342,8 @@ function ProfileView({
   setAthleteProfile,
   profile,
   setProfile,
-  route,
-  result,
   riderCdaScale,
   suggestedRiderCdaScale,
-  hasPendingSimulation,
-  importError,
-  onRunSimulation,
   activeView,
   setActiveView
 }: {
@@ -1366,13 +1351,8 @@ function ProfileView({
   setAthleteProfile: Dispatch<SetStateAction<AthleteProfile>>;
   profile: RiderBikeProfile;
   setProfile: Dispatch<SetStateAction<RiderBikeProfile>>;
-  route: PreparedRoute | null;
-  result: SimulationResult | null;
   riderCdaScale: number;
   suggestedRiderCdaScale: number;
-  hasPendingSimulation: boolean;
-  importError: string;
-  onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1440,16 +1420,6 @@ function ProfileView({
             <Save size={18} />
             Lokal gespeichert
           </div>
-
-          <FormSection title="GPX-Auswertung">
-            <CourseEvaluation
-              route={route}
-              result={result}
-              hasPendingSimulation={hasPendingSimulation}
-              onRunSimulation={onRunSimulation}
-            />
-            {importError && <p className="error-line">{importError}</p>}
-          </FormSection>
         </section>
       </section>
 
@@ -1463,11 +1433,6 @@ function BikeProfileView({
   setBikeSetup,
   profile,
   setProfile,
-  route,
-  result,
-  hasPendingSimulation,
-  importError,
-  onRunSimulation,
   activeView,
   setActiveView
 }: {
@@ -1475,11 +1440,6 @@ function BikeProfileView({
   setBikeSetup: Dispatch<SetStateAction<BikeSetupProfile>>;
   profile: RiderBikeProfile;
   setProfile: Dispatch<SetStateAction<RiderBikeProfile>>;
-  route: PreparedRoute | null;
-  result: SimulationResult | null;
-  hasPendingSimulation: boolean;
-  importError: string;
-  onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1581,16 +1541,6 @@ function BikeProfileView({
             <Save size={18} />
             Lokal gespeichert
           </div>
-
-          <FormSection title="GPX-Auswertung">
-            <CourseEvaluation
-              route={route}
-              result={result}
-              hasPendingSimulation={hasPendingSimulation}
-              onRunSimulation={onRunSimulation}
-            />
-            {importError && <p className="error-line">{importError}</p>}
-          </FormSection>
         </section>
       </section>
 
