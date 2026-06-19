@@ -72,10 +72,10 @@ const DRY_AIR_R = 287.05;
 const WATER_VAPOR_R = 461.495;
 
 export const defaultProfile: RiderBikeProfile = {
-  riderWeightKg: 75,
+  riderWeightKg: 90,
   bikeWeightKg: 9,
-  ftpW: 260,
-  targetPowerW: 190,
+  ftpW: 400,
+  targetPowerW: 288,
   cdaRace: 0.2628,
   cdaClimb: 0.4133,
   cdaRaceYaw: {
@@ -97,7 +97,7 @@ export const defaultProfile: RiderBikeProfile = {
   positionSwitchKph: 24,
   maxSpeedKph: 78,
   minPowerW: 90,
-  maxPowerW: 285,
+  maxPowerW: 600,
   pacingAggression: 0.65,
   maxPowerSurgePct: 18,
   cornerExitBoostPct: 10,
