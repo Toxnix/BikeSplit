@@ -648,13 +648,7 @@ export default function App() {
             </button>
           )}
         </nav>
-        <div className="top-actions">
-          <button className="button secondary" type="button" onClick={() => fileInputRef.current?.click()}>
-            <Upload size={17} />
-            GPX
-          </button>
-          <input ref={fileInputRef} className="visually-hidden" type="file" accept=".gpx,application/gpx+xml" onChange={handleFile} />
-        </div>
+        <input ref={fileInputRef} className="visually-hidden" type="file" accept=".gpx,application/gpx+xml" onChange={handleFile} />
       </header>
 
       {currentView !== "simulator" && (
@@ -681,7 +675,6 @@ export default function App() {
           suggestedRiderCdaScale={suggestedRiderCdaScale}
           hasPendingSimulation={hasPendingSimulation}
           importError={importError}
-          onImportGpx={() => fileInputRef.current?.click()}
           onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
@@ -696,7 +689,6 @@ export default function App() {
           result={result}
           hasPendingSimulation={hasPendingSimulation}
           importError={importError}
-          onImportGpx={() => fileInputRef.current?.click()}
           onRunSimulation={runSimulation}
           activeView={currentView}
           setActiveView={setActiveView}
@@ -723,7 +715,6 @@ export default function App() {
           onSaveCurrent={saveCurrentRacePlan}
           onOpenPlan={openRacePlan}
           onDeletePlan={deleteRacePlan}
-          onImportGpx={() => fileInputRef.current?.click()}
           activeView={currentView}
           setActiveView={setActiveView}
         />
@@ -743,7 +734,6 @@ export default function App() {
                 route={route}
                 result={result}
                 hasPendingSimulation={hasPendingSimulation}
-                onImportGpx={() => fileInputRef.current?.click()}
                 onRunSimulation={runSimulation}
               />
               {route && (
@@ -953,10 +943,10 @@ export default function App() {
               <section className="empty-route-panel">
                 <Map size={34} />
                 <h2>Keine Strecke geladen</h2>
-                <p>Lade eine GPX-Datei, dann werden Streckenprofil, Segmente, Radzeit und Szenarien mit den aktuellen Profilwerten berechnet.</p>
-                <button className="button secondary" type="button" onClick={() => fileInputRef.current?.click()}>
-                  <Upload size={17} />
-                  GPX laden
+                <p>Lade eine GPX-Datei auf der Strecken-Seite, dann werden Streckenprofil, Segmente, Radzeit und Szenarien mit den aktuellen Profilwerten berechnet.</p>
+                <button className="button secondary" type="button" onClick={() => setActiveView("courses")}>
+                  <Map size={17} />
+                  Zu Strecken
                 </button>
               </section>
             )}
@@ -1214,17 +1204,19 @@ function CourseEvaluation({
   route: PreparedRoute | null;
   result: SimulationResult | null;
   hasPendingSimulation?: boolean;
-  onImportGpx: () => void;
+  onImportGpx?: () => void;
   onRunSimulation?: () => void;
 }) {
   if (!route) {
     return (
       <div className="course-empty">
         <p>Keine GPX geladen.</p>
-        <button className="button secondary" type="button" onClick={onImportGpx}>
-          <Upload size={17} />
-          GPX laden
-        </button>
+        {onImportGpx && (
+          <button className="button secondary" type="button" onClick={onImportGpx}>
+            <Upload size={17} />
+            GPX laden
+          </button>
+        )}
       </div>
     );
   }
@@ -1240,10 +1232,12 @@ function CourseEvaluation({
               {result ? "Neu berechnen" : "Prediction berechnen"}
             </button>
           )}
-          <button className="button ghost" type="button" onClick={onImportGpx}>
-            <Upload size={17} />
-            GPX ersetzen
-          </button>
+          {onImportGpx && (
+            <button className="button ghost" type="button" onClick={onImportGpx}>
+              <Upload size={17} />
+              GPX ersetzen
+            </button>
+          )}
         </div>
       </div>
       <div className="stat-grid two">
@@ -1364,7 +1358,6 @@ function ProfileView({
   suggestedRiderCdaScale,
   hasPendingSimulation,
   importError,
-  onImportGpx,
   onRunSimulation,
   activeView,
   setActiveView
@@ -1379,7 +1372,6 @@ function ProfileView({
   suggestedRiderCdaScale: number;
   hasPendingSimulation: boolean;
   importError: string;
-  onImportGpx: () => void;
   onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
@@ -1454,7 +1446,6 @@ function ProfileView({
               route={route}
               result={result}
               hasPendingSimulation={hasPendingSimulation}
-              onImportGpx={onImportGpx}
               onRunSimulation={onRunSimulation}
             />
             {importError && <p className="error-line">{importError}</p>}
@@ -1476,7 +1467,6 @@ function BikeProfileView({
   result,
   hasPendingSimulation,
   importError,
-  onImportGpx,
   onRunSimulation,
   activeView,
   setActiveView
@@ -1489,7 +1479,6 @@ function BikeProfileView({
   result: SimulationResult | null;
   hasPendingSimulation: boolean;
   importError: string;
-  onImportGpx: () => void;
   onRunSimulation: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
@@ -1598,7 +1587,6 @@ function BikeProfileView({
               route={route}
               result={result}
               hasPendingSimulation={hasPendingSimulation}
-              onImportGpx={onImportGpx}
               onRunSimulation={onRunSimulation}
             />
             {importError && <p className="error-line">{importError}</p>}
@@ -1618,7 +1606,6 @@ function RacePlansView({
   onSaveCurrent,
   onOpenPlan,
   onDeletePlan,
-  onImportGpx,
   activeView,
   setActiveView
 }: {
@@ -1628,7 +1615,6 @@ function RacePlansView({
   onSaveCurrent: () => void;
   onOpenPlan: (id: string) => void;
   onDeletePlan: (id: string) => void;
-  onImportGpx: () => void;
   activeView: ActiveView;
   setActiveView: Dispatch<SetStateAction<ActiveView>>;
 }) {
@@ -1645,9 +1631,9 @@ function RacePlansView({
               <Save size={17} />
               Aktuelle Prediction speichern
             </button>
-            <button className="button ghost" type="button" onClick={onImportGpx}>
-              <Upload size={17} />
-              GPX laden
+            <button className="button ghost" type="button" onClick={() => setActiveView("courses")}>
+              <Map size={17} />
+              Zu Strecken
             </button>
           </div>
 
