@@ -1,0 +1,2327 @@
+{
+  "sourceUrl": "https://www.bestbikesplit.com/member-update-bike/97709",
+  "capturedAt": "2026-06-19T09:50:06.194Z",
+  "interpretation": "one option varied at a time; all other BBS bike settings restored to baseline before each read",
+  "baseline": {
+    "calculated": {
+      "cdayaw_0": "0.2628",
+      "cdayaw_10": "0.2489",
+      "cdayaw_15": "0.2452",
+      "cdayaw_20": "0.2360",
+      "cdayaw_5": "0.2607",
+      "cdayawcl_0": "0.4133",
+      "cdayawcl_10": "0.3989",
+      "cdayawcl_15": "0.3922",
+      "cdayawcl_20": "0.3796",
+      "cdayawcl_5": "0.4109",
+      "mechloss": "0.022",
+      "rollingres": "0.003090"
+    },
+    "radios": {
+      "use_aa": false,
+      "use_basic": true,
+      "use_calc": false,
+      "use_manual": false
+    },
+    "selects": {
+      "bcomponents": "2",
+      "bhelmet": "2",
+      "btype": "3",
+      "climbing_style": "3",
+      "fwheel_depth": "3",
+      "fwheel_width": "2",
+      "riding_style": "4",
+      "rwheel_depth": "6",
+      "rwheel_width": "2",
+      "tire_type": "5",
+      "tube_type": "2"
+    }
+  },
+  "selectControls": [
+    {
+      "id": "btype",
+      "label": "Bike Type",
+      "options": [
+        {
+          "selected": false,
+          "text": "Road",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Aero Road",
+          "value": "2"
+        },
+        {
+          "selected": true,
+          "text": "Tri/TT (entry level)",
+          "value": "3"
+        },
+        {
+          "selected": false,
+          "text": "Tri/TT",
+          "value": "4"
+        },
+        {
+          "selected": false,
+          "text": "Gravel",
+          "value": "5"
+        },
+        {
+          "selected": false,
+          "text": "Mountain",
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "id": "bcomponents",
+      "label": "Components",
+      "options": [
+        {
+          "selected": false,
+          "text": "High End",
+          "value": "1"
+        },
+        {
+          "selected": true,
+          "text": "Mid Range",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Entry Level",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "fwheel_depth",
+      "label": "Front Wheel Type",
+      "options": [
+        {
+          "selected": false,
+          "text": "Standard Box Rim",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Minimal Depth (30s)",
+          "value": "2"
+        },
+        {
+          "selected": true,
+          "text": "Medium Depth (60s)",
+          "value": "3"
+        },
+        {
+          "selected": false,
+          "text": "Deep Depth (90s)",
+          "value": "4"
+        },
+        {
+          "selected": false,
+          "text": "Tri-Spoke",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "id": "fwheel_width",
+      "label": "Front Wheel Width",
+      "options": [
+        {
+          "selected": false,
+          "text": "Narrow",
+          "value": "1"
+        },
+        {
+          "selected": true,
+          "text": "Wide",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "id": "rwheel_depth",
+      "label": "Rear Wheel Type",
+      "options": [
+        {
+          "selected": false,
+          "text": "Standard Box Rim",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Minimal Depth (30s)",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Medium Depth (60s)",
+          "value": "3"
+        },
+        {
+          "selected": false,
+          "text": "Deep Depth (90s)",
+          "value": "4"
+        },
+        {
+          "selected": false,
+          "text": "Tri-Spoke",
+          "value": "5"
+        },
+        {
+          "selected": true,
+          "text": "Disc",
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "id": "rwheel_width",
+      "label": "Rear Wheel Width",
+      "options": [
+        {
+          "selected": false,
+          "text": "Narrow",
+          "value": "1"
+        },
+        {
+          "selected": true,
+          "text": "Wide",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "id": "tire_type",
+      "label": "Tire Type",
+      "options": [
+        {
+          "selected": false,
+          "text": "Clincher (narrow 19-21)",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Clincher (medium 22-24)",
+          "value": "3"
+        },
+        {
+          "selected": true,
+          "text": "Clincher (wide 25-28)",
+          "value": "5"
+        },
+        {
+          "selected": false,
+          "text": "Clincher (wider 30+)",
+          "value": "9"
+        },
+        {
+          "selected": false,
+          "text": "Tubular (narrow 19-21)",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Tubular (medium 22-24)",
+          "value": "4"
+        },
+        {
+          "selected": false,
+          "text": "Tubular (wide 25-28)",
+          "value": "6"
+        },
+        {
+          "selected": false,
+          "text": "Tubular (wider 30+)",
+          "value": "10"
+        },
+        {
+          "selected": false,
+          "text": "Gravel Tires",
+          "value": "7"
+        },
+        {
+          "selected": false,
+          "text": "Mountain Bike Tires",
+          "value": "8"
+        }
+      ]
+    },
+    {
+      "id": "tube_type",
+      "label": "Tube Type (clincher only)",
+      "options": [
+        {
+          "selected": false,
+          "text": "Butyl",
+          "value": "1"
+        },
+        {
+          "selected": true,
+          "text": "Latex",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Tubeless",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "riding_style",
+      "label": "Racing Position",
+      "options": [
+        {
+          "selected": false,
+          "text": "Tops",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Hoods",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Drops",
+          "value": "3"
+        },
+        {
+          "selected": false,
+          "text": "Aerobars (Recreational Triathlete)",
+          "value": "6"
+        },
+        {
+          "selected": false,
+          "text": "Aerobars (Midpack Triathlete)",
+          "value": "7"
+        },
+        {
+          "selected": true,
+          "text": "Aerobars (Advanced Triathlete)",
+          "value": "4"
+        },
+        {
+          "selected": false,
+          "text": "Aerobars (Elite/Pro Time Trial)",
+          "value": "5"
+        },
+        {
+          "selected": false,
+          "text": "Mountain Bike Bars",
+          "value": "8"
+        }
+      ]
+    },
+    {
+      "id": "climbing_style",
+      "label": "Climbing Position",
+      "options": [
+        {
+          "selected": true,
+          "text": "Upright",
+          "value": "3"
+        },
+        {
+          "selected": false,
+          "text": "Tops",
+          "value": "1"
+        },
+        {
+          "selected": false,
+          "text": "Hoods/Bullhorns",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Mountain Bike Bars",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "id": "bhelmet",
+      "label": "Helmet Type",
+      "options": [
+        {
+          "selected": false,
+          "text": "Road",
+          "value": "1"
+        },
+        {
+          "selected": true,
+          "text": "Aero",
+          "value": "2"
+        },
+        {
+          "selected": false,
+          "text": "Mountain",
+          "value": "3"
+        }
+      ]
+    }
+  ],
+  "radioControls": [
+    {
+      "checked": true,
+      "disabled": false,
+      "id": "use_basic",
+      "label": "Use Basic Riding Style Use your basic riding style and bike setup selections from above to estimate your drag.",
+      "value": "1"
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "use_calc",
+      "label": "Use Bike Fit Measurements Use your bike fit measurements and setup selections to get a more accurate estimate of your drag.",
+      "value": "2"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "use_aa",
+      "label": "Use Analytics Use the Analytics Tool to upload a previous race file using this bike then click \"Update Current\" for race CdA and/or climb CdA.",
+      "value": "3"
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "use_manual",
+      "label": "Use Manual Entry Use your manually entered zero yaw CdA values to estimate your drag.",
+      "value": "4"
+    }
+  ],
+  "optionScan": [
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "1",
+      "optionText": "Road",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2724",
+        "cdayaw_10": "0.2594",
+        "cdayaw_15": "0.2539",
+        "cdayaw_20": "0.248",
+        "cdayaw_5": "0.2688",
+        "cdayawcl_0": "0.4213",
+        "cdayawcl_10": "0.4077",
+        "cdayawcl_15": "0.3995",
+        "cdayawcl_20": "0.3896",
+        "cdayawcl_5": "0.4176",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0096,
+        "cdayaw_5": 0.0081,
+        "cdayaw_10": 0.0105,
+        "cdayaw_15": 0.0087,
+        "cdayaw_20": 0.012,
+        "cdayawcl_0": 0.008,
+        "cdayawcl_5": 0.0067,
+        "cdayawcl_10": 0.0088,
+        "cdayawcl_15": 0.0073,
+        "cdayawcl_20": 0.01
+      }
+    },
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "2",
+      "optionText": "Aero Road",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2679",
+        "cdayaw_10": "0.2543",
+        "cdayaw_15": "0.2485",
+        "cdayaw_20": "0.2411",
+        "cdayaw_5": "0.264",
+        "cdayawcl_0": "0.4176",
+        "cdayawcl_10": "0.4034",
+        "cdayawcl_15": "0.395",
+        "cdayawcl_20": "0.3839",
+        "cdayawcl_5": "0.4136",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0051,
+        "cdayaw_5": 0.0033,
+        "cdayaw_10": 0.0054,
+        "cdayaw_15": 0.0033,
+        "cdayaw_20": 0.0051,
+        "cdayawcl_0": 0.0043,
+        "cdayawcl_5": 0.0027,
+        "cdayawcl_10": 0.0045,
+        "cdayawcl_15": 0.0028,
+        "cdayawcl_20": 0.0043
+      }
+    },
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "3",
+      "optionText": "Tri/TT (entry level)",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "4",
+      "optionText": "Tri/TT",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.258",
+        "cdayaw_10": "0.2435",
+        "cdayaw_15": "0.2389",
+        "cdayaw_20": "0.2306",
+        "cdayaw_5": "0.255",
+        "cdayawcl_0": "0.4093",
+        "cdayawcl_10": "0.3944",
+        "cdayawcl_15": "0.387",
+        "cdayawcl_20": "0.3751",
+        "cdayawcl_5": "0.4061",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": -0.0048,
+        "cdayaw_5": -0.0057,
+        "cdayaw_10": -0.0054,
+        "cdayaw_15": -0.0063,
+        "cdayaw_20": -0.0054,
+        "cdayawcl_0": -0.004,
+        "cdayawcl_5": -0.0048,
+        "cdayawcl_10": -0.0045,
+        "cdayawcl_15": -0.0052,
+        "cdayawcl_20": -0.0045
+      }
+    },
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "5",
+      "optionText": "Gravel",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2724",
+        "cdayaw_10": "0.2594",
+        "cdayaw_15": "0.2539",
+        "cdayaw_20": "0.248",
+        "cdayaw_5": "0.2688",
+        "cdayawcl_0": "0.4213",
+        "cdayawcl_10": "0.4077",
+        "cdayawcl_15": "0.3995",
+        "cdayawcl_20": "0.3896",
+        "cdayawcl_5": "0.4176",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0096,
+        "cdayaw_5": 0.0081,
+        "cdayaw_10": 0.0105,
+        "cdayaw_15": 0.0087,
+        "cdayaw_20": 0.012,
+        "cdayawcl_0": 0.008,
+        "cdayawcl_5": 0.0067,
+        "cdayawcl_10": 0.0088,
+        "cdayawcl_15": 0.0073,
+        "cdayawcl_20": 0.01
+      }
+    },
+    {
+      "controlId": "btype",
+      "controlLabel": "Bike Type",
+      "optionValue": "6",
+      "optionText": "Mountain",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2724",
+        "cdayaw_10": "0.2594",
+        "cdayaw_15": "0.2539",
+        "cdayaw_20": "0.248",
+        "cdayaw_5": "0.2688",
+        "cdayawcl_0": "0.4213",
+        "cdayawcl_10": "0.4077",
+        "cdayawcl_15": "0.3995",
+        "cdayawcl_20": "0.3896",
+        "cdayawcl_5": "0.4176",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0096,
+        "cdayaw_5": 0.0081,
+        "cdayaw_10": 0.0105,
+        "cdayaw_15": 0.0087,
+        "cdayaw_20": 0.012,
+        "cdayawcl_0": 0.008,
+        "cdayawcl_5": 0.0067,
+        "cdayawcl_10": 0.0088,
+        "cdayawcl_15": 0.0073,
+        "cdayawcl_20": 0.01
+      }
+    },
+    {
+      "controlId": "bcomponents",
+      "controlLabel": "Components",
+      "optionValue": "1",
+      "optionText": "High End",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.015",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": -0.007,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "bcomponents",
+      "controlLabel": "Components",
+      "optionValue": "2",
+      "optionText": "Mid Range",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "bcomponents",
+      "controlLabel": "Components",
+      "optionValue": "3",
+      "optionText": "Entry Level",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.028",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0.006,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "fwheel_depth",
+      "controlLabel": "Front Wheel Type",
+      "optionValue": "1",
+      "optionText": "Standard Box Rim",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2653",
+        "cdayaw_10": "0.2545",
+        "cdayaw_15": "0.2517",
+        "cdayaw_20": "0.2408",
+        "cdayaw_5": "0.2639",
+        "cdayawcl_0": "0.4154",
+        "cdayawcl_10": "0.4037",
+        "cdayawcl_15": "0.3978",
+        "cdayawcl_20": "0.3837",
+        "cdayawcl_5": "0.4136",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0025,
+        "cdayaw_5": 0.0032,
+        "cdayaw_10": 0.0056,
+        "cdayaw_15": 0.0065,
+        "cdayaw_20": 0.0048,
+        "cdayawcl_0": 0.0021,
+        "cdayawcl_5": 0.0027,
+        "cdayawcl_10": 0.0048,
+        "cdayawcl_15": 0.0056,
+        "cdayawcl_20": 0.0041
+      }
+    },
+    {
+      "controlId": "fwheel_depth",
+      "controlLabel": "Front Wheel Type",
+      "optionValue": "2",
+      "optionText": "Minimal Depth (30s)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2642",
+        "cdayaw_10": "0.2535",
+        "cdayaw_15": "0.2492",
+        "cdayaw_20": "0.2384",
+        "cdayaw_5": "0.2628",
+        "cdayawcl_0": "0.4145",
+        "cdayawcl_10": "0.4028",
+        "cdayawcl_15": "0.3957",
+        "cdayawcl_20": "0.3816",
+        "cdayawcl_5": "0.4126",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0014,
+        "cdayaw_5": 0.0021,
+        "cdayaw_10": 0.0046,
+        "cdayaw_15": 0.004,
+        "cdayaw_20": 0.0024,
+        "cdayawcl_0": 0.0012,
+        "cdayawcl_5": 0.0017,
+        "cdayawcl_10": 0.0039,
+        "cdayawcl_15": 0.0035,
+        "cdayawcl_20": 0.002
+      }
+    },
+    {
+      "controlId": "fwheel_depth",
+      "controlLabel": "Front Wheel Type",
+      "optionValue": "3",
+      "optionText": "Medium Depth (60s)",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "fwheel_depth",
+      "controlLabel": "Front Wheel Type",
+      "optionValue": "4",
+      "optionText": "Deep Depth (90s)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2622",
+        "cdayaw_10": "0.2451",
+        "cdayaw_15": "0.2422",
+        "cdayaw_20": "0.2335",
+        "cdayaw_5": "0.2592",
+        "cdayawcl_0": "0.4128",
+        "cdayawcl_10": "0.3957",
+        "cdayawcl_15": "0.3898",
+        "cdayawcl_20": "0.3775",
+        "cdayawcl_5": "0.4096",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": -0.0006,
+        "cdayaw_5": -0.0015,
+        "cdayaw_10": -0.0038,
+        "cdayaw_15": -0.003,
+        "cdayaw_20": -0.0025,
+        "cdayawcl_0": -0.0005,
+        "cdayawcl_5": -0.0013,
+        "cdayawcl_10": -0.0032,
+        "cdayawcl_15": -0.0024,
+        "cdayawcl_20": -0.0021
+      }
+    },
+    {
+      "controlId": "fwheel_depth",
+      "controlLabel": "Front Wheel Type",
+      "optionValue": "5",
+      "optionText": "Tri-Spoke",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2654",
+        "cdayaw_10": "0.2556",
+        "cdayaw_15": "0.249",
+        "cdayaw_20": "0.237",
+        "cdayaw_5": "0.2647",
+        "cdayawcl_0": "0.4155",
+        "cdayawcl_10": "0.4047",
+        "cdayawcl_15": "0.3955",
+        "cdayawcl_20": "0.3804",
+        "cdayawcl_5": "0.4143",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0026,
+        "cdayaw_5": 0.004,
+        "cdayaw_10": 0.0067,
+        "cdayaw_15": 0.0038,
+        "cdayaw_20": 0.001,
+        "cdayawcl_0": 0.0022,
+        "cdayawcl_5": 0.0034,
+        "cdayawcl_10": 0.0058,
+        "cdayawcl_15": 0.0033,
+        "cdayawcl_20": 0.0008
+      }
+    },
+    {
+      "controlId": "fwheel_width",
+      "controlLabel": "Front Wheel Width",
+      "optionValue": "1",
+      "optionText": "Narrow",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2656",
+        "cdayaw_10": "0.254",
+        "cdayaw_15": "0.2485",
+        "cdayaw_20": "0.239",
+        "cdayaw_5": "0.2641",
+        "cdayawcl_0": "0.4156",
+        "cdayawcl_10": "0.4033",
+        "cdayawcl_15": "0.3951",
+        "cdayawcl_20": "0.3821",
+        "cdayawcl_5": "0.4138",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0028,
+        "cdayaw_5": 0.0034,
+        "cdayaw_10": 0.0051,
+        "cdayaw_15": 0.0033,
+        "cdayaw_20": 0.003,
+        "cdayawcl_0": 0.0023,
+        "cdayawcl_5": 0.0029,
+        "cdayawcl_10": 0.0044,
+        "cdayawcl_15": 0.0029,
+        "cdayawcl_20": 0.0025
+      }
+    },
+    {
+      "controlId": "fwheel_width",
+      "controlLabel": "Front Wheel Width",
+      "optionValue": "2",
+      "optionText": "Wide",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "1",
+      "optionText": "Standard Box Rim",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2641",
+        "cdayaw_10": "0.2525",
+        "cdayaw_15": "0.2505",
+        "cdayaw_20": "0.2422",
+        "cdayaw_5": "0.2629",
+        "cdayawcl_0": "0.4143",
+        "cdayawcl_10": "0.4017",
+        "cdayawcl_15": "0.3963",
+        "cdayawcl_20": "0.3843",
+        "cdayawcl_5": "0.4125",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0013,
+        "cdayaw_5": 0.0022,
+        "cdayaw_10": 0.0036,
+        "cdayaw_15": 0.0053,
+        "cdayaw_20": 0.0062,
+        "cdayawcl_0": 0.001,
+        "cdayawcl_5": 0.0016,
+        "cdayawcl_10": 0.0028,
+        "cdayawcl_15": 0.0041,
+        "cdayawcl_20": 0.0047
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "2",
+      "optionText": "Minimal Depth (30s)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2637",
+        "cdayaw_10": "0.2521",
+        "cdayaw_15": "0.2495",
+        "cdayaw_20": "0.2413",
+        "cdayaw_5": "0.2625",
+        "cdayawcl_0": "0.4139",
+        "cdayawcl_10": "0.4014",
+        "cdayawcl_15": "0.3955",
+        "cdayawcl_20": "0.3836",
+        "cdayawcl_5": "0.4122",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0009,
+        "cdayaw_5": 0.0018,
+        "cdayaw_10": 0.0032,
+        "cdayaw_15": 0.0043,
+        "cdayaw_20": 0.0053,
+        "cdayawcl_0": 0.0006,
+        "cdayawcl_5": 0.0013,
+        "cdayawcl_10": 0.0025,
+        "cdayawcl_15": 0.0033,
+        "cdayawcl_20": 0.004
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "3",
+      "optionText": "Medium Depth (60s)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2631",
+        "cdayaw_10": "0.2503",
+        "cdayaw_15": "0.2479",
+        "cdayaw_20": "0.2403",
+        "cdayaw_5": "0.2616",
+        "cdayawcl_0": "0.4135",
+        "cdayawcl_10": "0.4",
+        "cdayawcl_15": "0.3943",
+        "cdayawcl_20": "0.3828",
+        "cdayawcl_5": "0.4116",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0003,
+        "cdayaw_5": 0.0009,
+        "cdayaw_10": 0.0014,
+        "cdayaw_15": 0.0027,
+        "cdayaw_20": 0.0043,
+        "cdayawcl_0": 0.0002,
+        "cdayawcl_5": 0.0007,
+        "cdayawcl_10": 0.0011,
+        "cdayawcl_15": 0.0021,
+        "cdayawcl_20": 0.0032
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "4",
+      "optionText": "Deep Depth (90s)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2629",
+        "cdayaw_10": "0.2488",
+        "cdayaw_15": "0.2467",
+        "cdayaw_20": "0.2393",
+        "cdayaw_5": "0.261",
+        "cdayawcl_0": "0.4134",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3934",
+        "cdayawcl_20": "0.3821",
+        "cdayawcl_5": "0.4111",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0001,
+        "cdayaw_5": 0.0003,
+        "cdayaw_10": -0.0001,
+        "cdayaw_15": 0.0015,
+        "cdayaw_20": 0.0033,
+        "cdayawcl_0": 0.0001,
+        "cdayawcl_5": 0.0002,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0.0012,
+        "cdayawcl_20": 0.0025
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "5",
+      "optionText": "Tri-Spoke",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2642",
+        "cdayaw_10": "0.253",
+        "cdayaw_15": "0.2494",
+        "cdayaw_20": "0.2407",
+        "cdayaw_5": "0.2632",
+        "cdayawcl_0": "0.4143",
+        "cdayawcl_10": "0.402",
+        "cdayawcl_15": "0.3955",
+        "cdayawcl_20": "0.3831",
+        "cdayawcl_5": "0.4128",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0014,
+        "cdayaw_5": 0.0025,
+        "cdayaw_10": 0.0041,
+        "cdayaw_15": 0.0042,
+        "cdayaw_20": 0.0047,
+        "cdayawcl_0": 0.001,
+        "cdayawcl_5": 0.0019,
+        "cdayawcl_10": 0.0031,
+        "cdayawcl_15": 0.0033,
+        "cdayawcl_20": 0.0035
+      }
+    },
+    {
+      "controlId": "rwheel_depth",
+      "controlLabel": "Rear Wheel Type",
+      "optionValue": "6",
+      "optionText": "Disc",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "rwheel_width",
+      "controlLabel": "Rear Wheel Width",
+      "optionValue": "1",
+      "optionText": "Narrow",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2639",
+        "cdayaw_10": "0.2509",
+        "cdayaw_15": "0.2465",
+        "cdayaw_20": "0.2372",
+        "cdayaw_5": "0.2621",
+        "cdayawcl_0": "0.4141",
+        "cdayawcl_10": "0.4004",
+        "cdayawcl_15": "0.3933",
+        "cdayawcl_20": "0.3805",
+        "cdayawcl_5": "0.4119",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.0011,
+        "cdayaw_5": 0.0014,
+        "cdayaw_10": 0.002,
+        "cdayaw_15": 0.0013,
+        "cdayaw_20": 0.0012,
+        "cdayawcl_0": 0.0008,
+        "cdayawcl_5": 0.001,
+        "cdayawcl_10": 0.0015,
+        "cdayawcl_15": 0.0011,
+        "cdayawcl_20": 0.0009
+      }
+    },
+    {
+      "controlId": "rwheel_width",
+      "controlLabel": "Rear Wheel Width",
+      "optionValue": "2",
+      "optionText": "Wide",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "1",
+      "optionText": "Clincher (narrow 19-21)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00342"
+      },
+      "delta": {
+        "rollingres": 0.00033,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "3",
+      "optionText": "Clincher (medium 22-24)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00336"
+      },
+      "delta": {
+        "rollingres": 0.00027,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "5",
+      "optionText": "Clincher (wide 25-28)",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "9",
+      "optionText": "Clincher (wider 30+)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.003"
+      },
+      "delta": {
+        "rollingres": -0.00009,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "2",
+      "optionText": "Tubular (narrow 19-21)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00375"
+      },
+      "delta": {
+        "rollingres": 0.00066,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "4",
+      "optionText": "Tubular (medium 22-24)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00369"
+      },
+      "delta": {
+        "rollingres": 0.0006,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "6",
+      "optionText": "Tubular (wide 25-28)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00342"
+      },
+      "delta": {
+        "rollingres": 0.00033,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "10",
+      "optionText": "Tubular (wider 30+)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.0034"
+      },
+      "delta": {
+        "rollingres": 0.00031,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "7",
+      "optionText": "Gravel Tires",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00513"
+      },
+      "delta": {
+        "rollingres": 0.00204,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tire_type",
+      "controlLabel": "Tire Type",
+      "optionValue": "8",
+      "optionText": "Mountain Bike Tires",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00545"
+      },
+      "delta": {
+        "rollingres": 0.00236,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tube_type",
+      "controlLabel": "Tube Type (clincher only)",
+      "optionValue": "1",
+      "optionText": "Butyl",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.0036"
+      },
+      "delta": {
+        "rollingres": 0.00051,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tube_type",
+      "controlLabel": "Tube Type (clincher only)",
+      "optionValue": "2",
+      "optionText": "Latex",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "tube_type",
+      "controlLabel": "Tube Type (clincher only)",
+      "optionValue": "3",
+      "optionText": "Tubeless",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00351"
+      },
+      "delta": {
+        "rollingres": 0.00042,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "1",
+      "optionText": "Tops",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.3728",
+        "cdayaw_10": "0.3572",
+        "cdayaw_15": "0.3514",
+        "cdayaw_20": "0.3394",
+        "cdayaw_5": "0.3703",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.11,
+        "cdayaw_5": 0.1096,
+        "cdayaw_10": 0.1083,
+        "cdayaw_15": 0.1062,
+        "cdayaw_20": 0.1034,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "2",
+      "optionText": "Hoods",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.3228",
+        "cdayaw_10": "0.308",
+        "cdayaw_15": "0.3031",
+        "cdayaw_20": "0.2924",
+        "cdayaw_5": "0.3205",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.06,
+        "cdayaw_5": 0.0598,
+        "cdayaw_10": 0.0591,
+        "cdayaw_15": 0.0579,
+        "cdayaw_20": 0.0564,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "3",
+      "optionText": "Drops",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2828",
+        "cdayaw_10": "0.2686",
+        "cdayaw_15": "0.2645",
+        "cdayaw_20": "0.2548",
+        "cdayaw_5": "0.2806",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.02,
+        "cdayaw_5": 0.0199,
+        "cdayaw_10": 0.0197,
+        "cdayaw_15": 0.0193,
+        "cdayaw_20": 0.0188,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "6",
+      "optionText": "Aerobars (Recreational Triathlete)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.3328",
+        "cdayaw_10": "0.3178",
+        "cdayaw_15": "0.3128",
+        "cdayaw_20": "0.3018",
+        "cdayaw_5": "0.3304",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.07,
+        "cdayaw_5": 0.0697,
+        "cdayaw_10": 0.0689,
+        "cdayaw_15": 0.0676,
+        "cdayaw_20": 0.0658,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "7",
+      "optionText": "Aerobars (Midpack Triathlete)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.3028",
+        "cdayaw_10": "0.2883",
+        "cdayaw_15": "0.2838",
+        "cdayaw_20": "0.2736",
+        "cdayaw_5": "0.3005",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.04,
+        "cdayaw_5": 0.0398,
+        "cdayaw_10": 0.0394,
+        "cdayaw_15": 0.0386,
+        "cdayaw_20": 0.0376,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "4",
+      "optionText": "Aerobars (Advanced Triathlete)",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "5",
+      "optionText": "Aerobars (Elite/Pro Time Trial)",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2428",
+        "cdayaw_10": "0.2292",
+        "cdayaw_15": "0.2258",
+        "cdayaw_20": "0.2172",
+        "cdayaw_5": "0.2408",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": -0.02,
+        "cdayaw_5": -0.0199,
+        "cdayaw_10": -0.0197,
+        "cdayaw_15": -0.0194,
+        "cdayaw_20": -0.0188,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "riding_style",
+      "controlLabel": "Racing Position",
+      "optionValue": "8",
+      "optionText": "Mountain Bike Bars",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.3928",
+        "cdayaw_10": "0.3769",
+        "cdayaw_15": "0.3707",
+        "cdayaw_20": "0.3582",
+        "cdayaw_5": "0.3902",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.13,
+        "cdayaw_5": 0.1295,
+        "cdayaw_10": 0.128,
+        "cdayaw_15": 0.1255,
+        "cdayaw_20": 0.1222,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "climbing_style",
+      "controlLabel": "Climbing Position",
+      "optionValue": "3",
+      "optionText": "Upright",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "climbing_style",
+      "controlLabel": "Climbing Position",
+      "optionValue": "1",
+      "optionText": "Tops",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.3833",
+        "cdayawcl_10": "0.3694",
+        "cdayawcl_15": "0.3633",
+        "cdayawcl_20": "0.3514",
+        "cdayawcl_5": "0.381",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": -0.03,
+        "cdayawcl_5": -0.0299,
+        "cdayawcl_10": -0.0295,
+        "cdayawcl_15": -0.0289,
+        "cdayawcl_20": -0.0282
+      }
+    },
+    {
+      "controlId": "climbing_style",
+      "controlLabel": "Climbing Position",
+      "optionValue": "2",
+      "optionText": "Hoods/Bullhorns",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.3333",
+        "cdayawcl_10": "0.3201",
+        "cdayawcl_15": "0.315",
+        "cdayawcl_20": "0.3045",
+        "cdayawcl_5": "0.3312",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": -0.08,
+        "cdayawcl_5": -0.0797,
+        "cdayawcl_10": -0.0788,
+        "cdayawcl_15": -0.0772,
+        "cdayawcl_20": -0.0751
+      }
+    },
+    {
+      "controlId": "climbing_style",
+      "controlLabel": "Climbing Position",
+      "optionValue": "4",
+      "optionText": "Mountain Bike Bars",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4333",
+        "cdayawcl_10": "0.4186",
+        "cdayawcl_15": "0.4116",
+        "cdayawcl_20": "0.3984",
+        "cdayawcl_5": "0.4308",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0.02,
+        "cdayawcl_5": 0.0199,
+        "cdayawcl_10": 0.0197,
+        "cdayawcl_15": 0.0194,
+        "cdayawcl_20": 0.0188
+      }
+    },
+    {
+      "controlId": "bhelmet",
+      "controlLabel": "Helmet Type",
+      "optionValue": "1",
+      "optionText": "Road",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2728",
+        "cdayaw_10": "0.2587",
+        "cdayaw_15": "0.2548",
+        "cdayaw_20": "0.2454",
+        "cdayaw_5": "0.2707",
+        "cdayawcl_0": "0.4158",
+        "cdayawcl_10": "0.4014",
+        "cdayawcl_15": "0.3947",
+        "cdayawcl_20": "0.382",
+        "cdayawcl_5": "0.4134",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.01,
+        "cdayaw_5": 0.01,
+        "cdayaw_10": 0.0098,
+        "cdayaw_15": 0.0096,
+        "cdayaw_20": 0.0094,
+        "cdayawcl_0": 0.0025,
+        "cdayawcl_5": 0.0025,
+        "cdayawcl_10": 0.0025,
+        "cdayawcl_15": 0.0025,
+        "cdayawcl_20": 0.0024
+      }
+    },
+    {
+      "controlId": "bhelmet",
+      "controlLabel": "Helmet Type",
+      "optionValue": "2",
+      "optionText": "Aero",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "bhelmet",
+      "controlLabel": "Helmet Type",
+      "optionValue": "3",
+      "optionText": "Mountain",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2728",
+        "cdayaw_10": "0.2587",
+        "cdayaw_15": "0.2548",
+        "cdayaw_20": "0.2454",
+        "cdayaw_5": "0.2707",
+        "cdayawcl_0": "0.4158",
+        "cdayawcl_10": "0.4014",
+        "cdayawcl_15": "0.3947",
+        "cdayawcl_20": "0.382",
+        "cdayawcl_5": "0.4134",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0.01,
+        "cdayaw_5": 0.01,
+        "cdayaw_10": 0.0098,
+        "cdayaw_15": 0.0096,
+        "cdayaw_20": 0.0094,
+        "cdayawcl_0": 0.0025,
+        "cdayawcl_5": 0.0025,
+        "cdayawcl_10": 0.0025,
+        "cdayawcl_15": 0.0025,
+        "cdayawcl_20": 0.0024
+      }
+    }
+  ],
+  "radioScan": [
+    {
+      "controlId": "drag_option",
+      "radioId": "use_basic",
+      "optionValue": "1",
+      "optionText": "Use Basic Riding Style Use your basic riding style and bike setup selections from above to estimate your drag.",
+      "isBaseline": true,
+      "calculated": {
+        "cdayaw_0": "0.2628",
+        "cdayaw_10": "0.2489",
+        "cdayaw_15": "0.2452",
+        "cdayaw_20": "0.236",
+        "cdayaw_5": "0.2607",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.3989",
+        "cdayawcl_15": "0.3922",
+        "cdayawcl_20": "0.3796",
+        "cdayawcl_5": "0.4109",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": 0,
+        "cdayaw_5": 0,
+        "cdayaw_10": 0,
+        "cdayaw_15": 0,
+        "cdayaw_20": 0,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0,
+        "cdayawcl_10": 0,
+        "cdayawcl_15": 0,
+        "cdayawcl_20": 0
+      }
+    },
+    {
+      "controlId": "drag_option",
+      "radioId": "use_calc",
+      "optionValue": "2",
+      "optionText": "Use Bike Fit Measurements Use your bike fit measurements and setup selections to get a more accurate estimate of your drag.",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0",
+        "cdayaw_10": "0",
+        "cdayaw_15": "0",
+        "cdayaw_20": "0",
+        "cdayaw_5": "0",
+        "cdayawcl_0": "0",
+        "cdayawcl_10": "0",
+        "cdayawcl_15": "0",
+        "cdayawcl_20": "0",
+        "cdayawcl_5": "0",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": -0.2628,
+        "cdayaw_5": -0.2607,
+        "cdayaw_10": -0.2489,
+        "cdayaw_15": -0.2452,
+        "cdayaw_20": -0.236,
+        "cdayawcl_0": -0.4133,
+        "cdayawcl_5": -0.4109,
+        "cdayawcl_10": -0.3989,
+        "cdayawcl_15": -0.3922,
+        "cdayawcl_20": -0.3796
+      }
+    },
+    {
+      "controlId": "drag_option",
+      "radioId": "use_manual",
+      "optionValue": "4",
+      "optionText": "Use Manual Entry Use your manually entered zero yaw CdA values to estimate your drag.",
+      "isBaseline": false,
+      "calculated": {
+        "cdayaw_0": "0.2581",
+        "cdayaw_10": "0.2461",
+        "cdayaw_15": "0.2465",
+        "cdayaw_20": "0.2555",
+        "cdayaw_5": "0.2517",
+        "cdayawcl_0": "0.4133",
+        "cdayawcl_10": "0.4139",
+        "cdayawcl_15": "0.4064",
+        "cdayawcl_20": "0.4028",
+        "cdayawcl_5": "0.4126",
+        "mechloss": "0.022",
+        "rollingres": "0.00309"
+      },
+      "delta": {
+        "rollingres": 0,
+        "mechloss": 0,
+        "cdayaw_0": -0.0047,
+        "cdayaw_5": -0.009,
+        "cdayaw_10": -0.0028,
+        "cdayaw_15": 0.0013,
+        "cdayaw_20": 0.0195,
+        "cdayawcl_0": 0,
+        "cdayawcl_5": 0.0017,
+        "cdayawcl_10": 0.015,
+        "cdayawcl_15": 0.0142,
+        "cdayawcl_20": 0.0232
+      }
+    }
+  ]
+}
