@@ -99,22 +99,10 @@ const EQUIPMENT_CDA_M2 = 0.06;
 
 type ActiveView = "simulator" | "profile" | "bike" | "courses" | "racePlans" | "raceDetails";
 type ChartAxis = "distance" | "time";
-type Units = "metric" | "imperial";
-type Gender = "male" | "female";
 type DragMethod = "basic" | "fit" | "manual";
 
 interface AthleteProfile {
-  firstName: string;
-  lastName: string;
-  birthMonth: string;
-  birthDay: number;
-  birthYear: number;
-  experience: string;
-  trainingElevationM: number;
-  preferredUnits: Units;
   heightCm: number;
-  gender: Gender;
-  maxHr: number;
   scaleCdaByRiderSize: boolean;
   cdaScalePct?: number;
 }
@@ -211,17 +199,7 @@ interface SimulationRun {
 }
 
 const defaultAthleteProfile: AthleteProfile = {
-  firstName: "Torsten",
-  lastName: "Endres",
-  birthMonth: "December",
-  birthDay: 16,
-  birthYear: 1981,
-  experience: "Advanced",
-  trainingElevationM: 80,
-  preferredUnits: "metric",
   heightCm: 190,
-  gender: "male",
-  maxHr: 190,
   scaleCdaByRiderSize: true
 };
 
@@ -302,21 +280,6 @@ const racingPositionOptions = [
 const climbingPositionOptions = ["Upright", "Tops", "Hoods/Bullhorns", "Mountain Bike Bars"];
 const helmetTypeOptions = ["Road", "Aero", "Mountain"];
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
-
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [route, setRoute] = useState<PreparedRoute | null>(null);
@@ -347,7 +310,7 @@ export default function App() {
   const goalTimeSec = goalHours * 3600 + goalMinutes * 60;
   const suggestedRiderCdaScale = useMemo(
     () => calculateSuggestedRiderCdaScale(athleteProfile, profile.riderWeightKg),
-    [athleteProfile.gender, athleteProfile.heightCm, profile.riderWeightKg]
+    [athleteProfile.heightCm, profile.riderWeightKg]
   );
   const riderCdaScale = useMemo(
     () => calculateRiderCdaScale(athleteProfile, suggestedRiderCdaScale),
@@ -414,8 +377,6 @@ export default function App() {
     );
     applyBbsCalculatedToProfile(setProfile, calculated);
   }, [
-    athleteProfile.gender,
-    athleteProfile.heightCm,
     bikeSetup.bikeType,
     bikeSetup.components,
     bikeSetup.frontWheelType,
@@ -1056,51 +1017,19 @@ function ProfileView({
         </div>
 
         <section className="profile-form-surface">
-          <FormSection title="Athlete Information">
+          <FormSection title="Athlet & Leistung">
             <div className="profile-grid">
-              <TextField label="First Name" value={athleteProfile.firstName} onChange={(value) => setAthleteField(setAthleteProfile, "firstName", value)} />
-              <TextField label="Last Name" value={athleteProfile.lastName} onChange={(value) => setAthleteField(setAthleteProfile, "lastName", value)} />
-              <div className="form-field date-field">
-                <span>Date of Birth</span>
-                <div className="date-controls">
-                  <SelectField label="" value={athleteProfile.birthMonth} options={months} onChange={(value) => setAthleteField(setAthleteProfile, "birthMonth", value)} compact />
-                  <SelectField label="" value={String(athleteProfile.birthDay)} options={numberOptions(1, 31)} onChange={(value) => setAthleteField(setAthleteProfile, "birthDay", Number(value))} compact />
-                  <SelectField label="" value={String(athleteProfile.birthYear)} options={numberOptions(1940, 2012).reverse()} onChange={(value) => setAthleteField(setAthleteProfile, "birthYear", Number(value))} compact />
-                </div>
-              </div>
-
-              <SelectField label="Experience" value={athleteProfile.experience} options={["Beginner", "Intermediate", "Advanced", "Elite"]} onChange={(value) => setAthleteField(setAthleteProfile, "experience", value)} />
-              <NumberField label="Training Elevation" value={athleteProfile.trainingElevationM} unit="m" min={0} max={3000} step={5} onChange={(value) => setAthleteField(setAthleteProfile, "trainingElevationM", value)} />
-              <ChoiceGroup
-                label="Preferred Units"
-                options={[
-                  { value: "imperial", label: "Imperial" },
-                  { value: "metric", label: "Metric" }
-                ]}
-                value={athleteProfile.preferredUnits}
-                onChange={(value) => setAthleteField(setAthleteProfile, "preferredUnits", value as Units)}
-              />
-
-              <NumberField label="Height" value={athleteProfile.heightCm} unit="cm" min={120} max={230} step={1} onChange={(value) => setAthleteField(setAthleteProfile, "heightCm", value)} />
-              <NumberField label="Weight" value={profile.riderWeightKg} unit="kg" min={45} max={130} step={0.5} onChange={(value) => setProfileField(setProfile, "riderWeightKg", value)} />
-              <ChoiceGroup
-                label="Gender"
-                options={[
-                  { value: "male", label: "Male" },
-                  { value: "female", label: "Female" }
-                ]}
-                value={athleteProfile.gender}
-                onChange={(value) => setAthleteField(setAthleteProfile, "gender", value as Gender)}
-              />
+              <NumberField label="Groesse" value={athleteProfile.heightCm} unit="cm" min={120} max={230} step={1} onChange={(value) => setAthleteField(setAthleteProfile, "heightCm", value)} />
+              <NumberField label="Gewicht" value={profile.riderWeightKg} unit="kg" min={45} max={130} step={0.5} onChange={(value) => setProfileField(setProfile, "riderWeightKg", value)} />
+              <NumberField label="FTP" value={profile.ftpW} unit="W" min={120} max={520} step={5} onChange={(value) => setProfileField(setProfile, "ftpW", value)} />
             </div>
           </FormSection>
 
-          <FormSection title="Calculated Values">
+          <FormSection title="Prediction-CdA">
             <div className="calculated-row">
-              <NumberField label="FTP" value={profile.ftpW} unit="W" min={120} max={520} step={5} onChange={(value) => setProfileField(setProfile, "ftpW", value)} />
-              <NumberField label="Max HR" value={athleteProfile.maxHr} unit="bpm" min={120} max={230} step={1} onChange={(value) => setAthleteField(setAthleteProfile, "maxHr", value)} />
               <p className="calculated-note">
-                FTP and Max Heart Rate can be estimated from age, height, and weight. Enter measured values for race-plan accuracy.
+                Groesse und Gewicht werden nur in der Prediction fuer die CdA-Skalierung genutzt. Der Formelwert ist ein Vorschlag;
+                du kannst den Prozentwert manuell korrigieren.
               </p>
               <div className="calculated-note cda-scale-note">
                 Prediction-CdA-Skalierung: {(riderCdaScale * 100).toFixed(1)}% der Referenz
@@ -2591,7 +2520,7 @@ function deriveBbsBikeCalculatedValues(setup: BikeSetupProfile): BbsBikeCalculat
 function calculateSuggestedRiderCdaScale(athleteProfile: AthleteProfile, riderWeightKg: number): number {
   const heightM = clampNumber(athleteProfile.heightCm / 100, 1.2, 2.3);
   const massKg = clampNumber(riderWeightKg, 45, 130);
-  const reference = athleteProfile.gender === "female" ? { heightM: 1.68, massKg: 60 } : { heightM: 1.8, massKg: 74 };
+  const reference = { heightM: 1.8, massKg: 74 };
   return Math.pow(heightM / reference.heightM, 1.1) * Math.pow(massKg / reference.massKg, 0.45);
 }
 
@@ -2763,14 +2692,6 @@ function parseNumberDraft(value: string): number | null {
 
   const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
-}
-
-function numberOptions(start: number, end: number): string[] {
-  const options: string[] = [];
-  for (let value = start; value <= end; value += 1) {
-    options.push(String(value));
-  }
-  return options;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
