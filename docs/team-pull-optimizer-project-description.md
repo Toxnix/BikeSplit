@@ -147,6 +147,302 @@ Optionale Daten:
 - CdA-Skalierung nach Koerpergroesse und Gewicht
 - Drafting-Verhalten
 
+### Setup-Abfrage wie im bestehenden Best Bike Split Clone
+
+Die neue App soll fuer Bike- und Aero-Werte nicht nur freie Zahlenfelder
+anbieten. Sie soll die im bestehenden Best Bike Split Clone bereits gebaute
+Setup-Abfrage uebernehmen und daraus automatisch CdA, Rollwiderstand und
+Antriebsverlust schaetzen.
+
+Abzufragende Setup-Felder:
+
+- Radgewicht
+- Radtyp:
+  - Road
+  - Aero Road
+  - Tri/TT entry level
+  - Tri/TT
+  - Gravel
+  - Mountain
+- Komponenten:
+  - High End
+  - Mid Range
+  - Entry Level
+- Vorderrad-Typ:
+  - Standard Box Rim
+  - Minimal Depth 30s
+  - Medium Depth 60s
+  - Deep Depth 90s
+  - Tri-Spoke
+  - Disc
+- Vorderrad-Breite:
+  - Narrow
+  - Wide
+- Hinterrad-Typ:
+  - Standard Box Rim
+  - Minimal Depth 30s
+  - Medium Depth 60s
+  - Deep Depth 90s
+  - Tri-Spoke
+  - Disc
+- Hinterrad-Breite:
+  - Narrow
+  - Wide
+- Reifentyp:
+  - Clincher narrow 19-21
+  - Tubular narrow 19-21
+  - Clincher medium 22-24
+  - Tubular medium 22-24
+  - Clincher wide 25-28
+  - Tubular wide 25-28
+  - Gravel Tires
+  - Mountain Bike Tires
+  - Clincher wider 30+
+  - Tubular wider 30+
+- Schlauchsystem:
+  - Butyl
+  - Latex
+  - Tubeless
+- Fuehrungsposition / Racing Position:
+  - Tops
+  - Hoods
+  - Drops
+  - Aerobars Recreational Triathlete
+  - Aerobars Midpack Triathlete
+  - Aerobars Advanced Triathlete
+  - Aerobars Elite/Pro Time Trial
+  - Mountain Bike Bars
+- Kletterposition:
+  - Tops
+  - Hoods/Bullhorns
+  - Upright
+  - Mountain Bike Bars
+- Helmtyp:
+  - Road
+  - Aero
+  - Mountain
+
+Fuer den Team Pull Optimizer ist die wichtigste Position die
+Fuehrungsposition. Die Kletterposition bleibt trotzdem sinnvoll, weil kurze
+Segmente auch steile Rampen enthalten koennen. Bei langsamen steilen Abschnitten
+kann dann die Climb-CdA genutzt werden.
+
+### Rollwiderstandsberechnung aus Reifen und Schlauchsystem
+
+Der Rollwiderstandskoeffizient `Crr` wird aus Reifentyp und Schlauchsystem
+bestimmt. Tubular-Reifen nutzen intern einen eigenen Schlauchtyp-Code, weil die
+Butyl/Latex/Tubeless-Auswahl dort nicht direkt passt.
+
+Startwerte aus dem bestehenden Clone:
+
+```text
+Reifentyp                         Butyl      Latex      Tubeless/Tubular
+Clincher narrow 19-21             0.00393    0.00342    0.00384
+Tubular narrow 19-21              -          -          0.00375
+Clincher medium 22-24             0.00387    0.00336    0.00378
+Tubular medium 22-24              -          -          0.00369
+Clincher wide 25-28               0.00360    0.00309    0.00351
+Tubular wide 25-28                -          -          0.00342
+Gravel Tires                      0.00588    0.00513    0.00538
+Mountain Bike Tires               0.00620    0.00545    0.00540
+Clincher wider 30+                0.00380    0.00300    0.00320
+Tubular wider 30+                 -          -          0.00340
+```
+
+Fallback:
+
+```text
+Crr = 0.00309
+```
+
+Das entspricht im bestehenden Clone einem breiten 25-28-mm-Clincher mit Latex.
+
+Der physikalische Solver nutzt `Crr` dann in:
+
+```text
+F_roll = Crr * m_system * g * cos(arctan(grade))
+```
+
+Fuer kurze Teamsegmente ist Crr wichtig, aber meist kleiner als CdA und
+Fuehrungsleistung. Auf Rampen und rauem Belag kann der Effekt trotzdem sichtbar
+werden.
+
+### Mechanischer Verlust aus Komponenten
+
+Der Antriebsverlust wird aus Komponentenqualitaet und Fahrer-/Wartungslevel
+geschaetzt.
+
+Im bestehenden Clone ist der Fahrerlevel standardmaessig `2`, also mittlerer
+Level. Daraus ergeben sich:
+
+```text
+Komponenten     Level 1   Level 2   Level 3
+High End        0.012     0.015     0.020
+Mid Range       0.018     0.022     0.025
+Entry Level     0.024     0.028     0.032
+```
+
+MVP-Fallback:
+
+```text
+mechanical_loss = 0.022
+```
+
+Der Solver reduziert damit die Fahrerleistung auf Radleistung:
+
+```text
+P_wheel = P_rider * (1 - mechanical_loss)
+```
+
+### CdA-Berechnung aus Position, Rahmen, Laufrad und Helm
+
+Der bestehende Clone erzeugt nicht nur einen einzelnen CdA-Wert, sondern zwei
+Yaw-Tabellen:
+
+- `CdA Racing` fuer schnelle Fuehrungsposition
+- `CdA Climbing` fuer langsamere Kletter-/Aufrechtposition
+
+Yaw-Winkel:
+
+```text
+0 Grad, 5 Grad, 10 Grad, 15 Grad, 20 Grad
+```
+
+Basis-CdA fuer Racing-Positionen:
+
+```text
+Position                                  Basis-CdA
+Tops                                      0.40
+Hoods                                     0.35
+Drops                                     0.31
+Aerobars Advanced Triathlete              0.29
+Aerobars Elite/Pro Time Trial             0.27
+Aerobars Recreational Triathlete          0.36
+Aerobars Midpack Triathlete               0.33
+Mountain Bike Bars                        0.42
+```
+
+Basis-CdA fuer Climbing-Positionen:
+
+```text
+Position              Basis-CdA
+Tops                  0.40
+Hoods/Bullhorns       0.35
+Upright               0.43
+Mountain Bike Bars    0.45
+```
+
+Helmkorrektur:
+
+```text
+Aero-Helm Racing:  -0.010 CdA
+Aero-Helm Climb:   -0.0025 CdA
+```
+
+Der CdA je Yaw-Winkel wird aus Basisposition, Rahmenvorteil und Laufradvorteil
+berechnet. Die Logik aus dem bestehenden Clone:
+
+```text
+CdA_race(yaw) =
+    base_race(yaw)
+  - 0.30 * frame_delta(yaw)
+  - 1.00 * front_wheel_delta(yaw)
+  - 0.40 * rear_wheel_delta(yaw)
+
+CdA_climb(yaw) =
+    base_climb(yaw)
+  - 0.25 * frame_delta(yaw)
+  - 0.85 * front_wheel_delta(yaw)
+  - 0.30 * rear_wheel_delta(yaw)
+```
+
+Dabei gilt:
+
+```text
+base(yaw) = base_0deg              fuer yaw = 0 Grad
+base(yaw) = cos(yaw) * base_0deg   fuer yaw > 0 Grad
+```
+
+Die Ergebnisse werden auf vier Dezimalstellen aufgerundet. Beispiel aus dem
+aktuellen Default-Setup:
+
+```text
+Racing CdA:
+0 Grad   0.2628
+5 Grad   0.2607
+10 Grad  0.2489
+15 Grad  0.2452
+20 Grad  0.2360
+
+Climbing CdA:
+0 Grad   0.4133
+5 Grad   0.4109
+10 Grad  0.3989
+15 Grad  0.3922
+20 Grad  0.3796
+```
+
+### Nutzung der CdA-Yaw-Tabelle in der Simulation
+
+Die Simulation berechnet fuer jeden Streckenabschnitt den effektiven
+Yaw-Winkel aus:
+
+- Fahrtrichtung des GPX-Abschnitts
+- Fahrgeschwindigkeit
+- Windrichtung
+- Windgeschwindigkeit
+
+Dann wird zwischen den festen Yaw-Werten interpoliert:
+
+```text
+CdA_effective = interpolate(CdA_yaw_table, yaw_effective)
+```
+
+Fuer den One-Pull-Then-Out-MVP gilt:
+
+- der fuehrende Fahrer nutzt `CdA Racing`
+- bei langsamen steilen Abschnitten optional `CdA Climbing`
+- nachfolgende Fahrer nutzen `CdA_effective * draft_factor`
+
+Damit bleibt die Bike-/Aero-Schaetzung kompatibel mit dem bestehenden
+Best-Bike-Split-Clone, wird aber fuer Team-Drafting erweitert.
+
+### CdA-Skalierung nach Koerpergroesse und Gewicht
+
+Die Setup-Schaetzung liefert einen Referenz-CdA fuer Position und Material. Fuer
+grosse oder kleine Fahrer kann der fahrerabhaengige Anteil skaliert werden. Die
+Equipment-CdA bleibt konstant:
+
+```text
+CdA_scaled = CdA_equip + (CdA_setup - CdA_equip) * rider_scale
+CdA_equip = 0.06
+```
+
+Vorschlag fuer den Skalierungsfaktor:
+
+```text
+rider_scale = (height_m / 1.80)^1.1 * (mass_kg / 74)^0.45
+```
+
+Der Wert ist nur ein Vorschlag und muss editierbar bleiben. In einem Teamtool
+ist das wichtig, weil Schulterbreite, Position, Kleidung und technische
+Faehigkeit groessere Unterschiede erzeugen koennen als reine Koerpergroesse.
+
+### Manuelle Overrides
+
+Alle automatisch berechneten Werte muessen im MVP manuell ueberschreibbar
+bleiben:
+
+- Crr
+- mechanischer Verlust
+- CdA Racing bei 0/5/10/15/20 Grad
+- CdA Climbing bei 0/5/10/15/20 Grad
+- CdA-Skalierungsprozent
+
+Grund: Einige Fahrer haben reale Messwerte aus Aerotests, Rolltests oder
+Power-Speed-Auswertungen. Diese Werte sollten Vorrang vor der Setup-Schaetzung
+haben.
+
 ## Streckenmodell
 
 Admin-GPX wird serverseitig verarbeitet:
